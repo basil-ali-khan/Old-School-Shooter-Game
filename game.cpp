@@ -60,8 +60,9 @@ bool Game::loadMedia()
 	//Loading success flag
 	bool success = true;
 	
-	assets = loadTexture("F:/OOP HWs/CS224-HW3-Fall2023-master/HUMania/assets.png");
+	assets = loadTexture("sprites.png");
     gTexture = loadTexture("background.png");
+	playButton = loadTexture("playbutton.png");
 	if(assets==NULL || gTexture==NULL)
     {
         printf("Unable to run due to error: %s\n",SDL_GetError());
@@ -130,14 +131,23 @@ void Game::run()
         // Clear the screen
         SDL_RenderClear(gRenderer);
 
-        // Render the background (assuming 'assets' is the background texture)
-        // SDL_RenderCopy(gRenderer, assets, NULL, NULL);
-
-        // Render the character texture (assuming 'gTexture' is the character texture)
+        // Render the background
         SDL_RenderCopy(gRenderer, gTexture, NULL, NULL);
+
+		//Render the play button
+		 SDL_Rect playButtonRect = {350, 254, 300, 92};  // Replace width and height with the dimensions of your play button
+        SDL_RenderCopy(gRenderer, playButton, NULL, &playButtonRect);
+
+        
+		//Render assets
+		// SDL_RenderCopy(gRenderer, assets, NULL, NULL);
+
+		
 
         // Update the screen
         SDL_RenderPresent(gRenderer);
+		
+		// SDL_RenderPresent(gRenderer);
     }
 }
 
