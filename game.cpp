@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include <SDL_render.h>
 
 
 const float Game::fovRad = MathAddon::angleDegToRad(60.0f);
