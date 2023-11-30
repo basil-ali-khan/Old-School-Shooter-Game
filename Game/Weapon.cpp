@@ -1,6 +1,5 @@
 #include "Weapon.h"
 
-
 bool Weapon::soundLoaded = false;
 Mix_Chunk* Weapon::mix_ChunkWeaponShoot = nullptr;
 

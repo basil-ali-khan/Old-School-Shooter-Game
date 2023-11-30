@@ -24,7 +24,7 @@ public:
 
 
 private:
-	Timer cooldownTimer;
+	Timer cooldownTimer = Timer(10.0f);
 
 	static bool soundLoaded;
 	static Mix_Chunk* mix_ChunkWeaponShoot;
