@@ -48,6 +48,7 @@ void Level::setupAllEnemies(SDL_Renderer* renderer, Vector2D& posStart, Vector2D
         case symbolEnemySmall:
             UnitEnemy::addUnitEnemyToListUsingTemplate(renderer, pos, 0, listUnitEnemies);
             break;
+            
         // case symbolEnemyMedium:
         //     UnitEnemy::addUnitEnemyToListUsingTemplate(renderer, pos, 1, listUnitEnemies);
         //     break;

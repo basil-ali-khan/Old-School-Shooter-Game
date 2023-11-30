@@ -3,7 +3,7 @@
 
 
 const std::vector<UnitEnemy::TemplateData> UnitEnemy::listTemplateData = {
-	{"Alien Small.bmp", 1, Weapon(-1, 1), false },
+	{"Alien-Small_2.bmp", 1, Weapon(-1, 1), false },
 	// {"Alien Medium.bmp", 3, Weapon(15, 4), true },
 	// {"Alien Large.bmp", 6, Weapon(30, 8), true }
 };

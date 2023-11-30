@@ -7,6 +7,9 @@ UnitPlayer::UnitPlayer(SDL_Renderer* renderer, Vector2D setPos) :
 
 }
 
+void UnitPlayer::shootProjectile(SDL_Renderer* renderer, std::vector<std::shared_ptr<Projectile>>& listProjectiles) {
+    weapon.shootProjectile(renderer, pos, Vector2D(angle), listProjectiles, true);
+}
 
 void UnitPlayer::update(float dT) {
 
@@ -72,8 +75,20 @@ void UnitPlayer::setAmountTurn(float setAmountTurn) {
     amountTurn = setAmountTurn;
 }
 
-
-
 float UnitPlayer::getAngle() {
     return angle;
+}
+
+bool UnitPlayer::isAmmoFull() {
+    return weapon.isAmmoFull();
+}
+
+
+void UnitPlayer::addAmmo(int amount) {
+    weapon.addAmmo(amount);
+}
+
+
+std::string UnitPlayer::computeAmmoString() {
+    return weapon.computeAmmoString();
 }

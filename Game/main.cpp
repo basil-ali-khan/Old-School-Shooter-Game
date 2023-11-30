@@ -7,6 +7,8 @@
 bool fullscreen = true;
 
 
+
+
 int main(int argc, char* args[]) {
 	//Seed the random number generator with the current time so that it will generate different numbers every time the game is run.
 	srand((unsigned)time(NULL));

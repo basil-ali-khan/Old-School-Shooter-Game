@@ -136,6 +136,10 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
         //Make the unit turn if needed.
         if (mouseXOffset != 0)
             unitPlayer->setAmountTurn((float)mouseXOffset / windowWidth);
+
+        //Make the unit shoot if needed.
+        if (mouseDownStatus == SDL_BUTTON_LEFT)
+            unitPlayer->shootProjectile(renderer, listProjectiles);
     }
 }
 
@@ -215,7 +219,7 @@ void Game::draw(SDL_Renderer* renderer, std::string framerate) {
 
 void Game::drawWorld(SDL_Renderer* renderer) {
     // Set the draw color to light blue (for the floor)
-    SDL_SetRenderDrawColor(renderer, 192, 192,192, 255);
+    SDL_SetRenderDrawColor(renderer, 75, 75,75, 255);
     //Draw a rectangle that covers the bottom half of the screen.
     //Note that the +1 to the height is incase worldHeight / 2 has round off error.
     SDL_Rect rectFloor = { 0, worldHeight / 2, worldWidth, (worldHeight / 2 + 1) };
@@ -223,6 +227,10 @@ void Game::drawWorld(SDL_Renderer* renderer) {
 
 
     drawWalls(renderer);
+    addAllSpritesToDrawList(renderer);
+    //Draw a number on the screen for the number of sprites that need to be drawn.
+    //drawText(renderer, 2, 14, 1, std::to_string(listSpritesToDraw.size()));
+    sortAndDrawListSpritesToDraw(renderer);
 }
 
 
@@ -245,9 +253,24 @@ void Game::drawOverlayInstructions(SDL_Renderer* renderer) {
 void Game::drawOverlayPlaying(SDL_Renderer* renderer) {
     if (unitPlayer != nullptr) {
         //Draw a transparent black overlay that covers a bit of the bottom left of the screen.
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
-        SDL_Rect rectBackground{ 0, worldHeight - 14, 110, 14 };
-        SDL_RenderFillRect(renderer, &rectBackground);
+        // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
+        // SDL_Rect rectBackground{ 0, worldHeight - 14, 110, 14 };
+        // SDL_RenderFillRect(renderer, &rectBackground);
+
+        // //Draw the heart image and the players amount of health.
+        // SDL_Rect rectHeart{ 0, worldHeight - 19, 16, 16 };
+        // SDL_RenderCopy(renderer, textureHeart, NULL, &rectHeart);
+        // drawText(renderer, 16, worldHeight - 10, 1, unitPlayer->getHealthString());
+
+        // //Draw the battery/ammo image and the players amount of ammo.
+        // SDL_Rect rectAmmo{ 40, worldHeight - 19, 16, 16 };
+        // SDL_RenderCopy(renderer, textureAmmo, NULL, &rectAmmo);
+        // drawText(renderer, 54, worldHeight - 10, 1, unitPlayer->computeAmmoString());
+
+        // //Draw the coin image and the players amount of coins.
+        // SDL_Rect rectCoin{ 80, worldHeight - 19, 16, 16 };
+        // SDL_RenderCopy(renderer, textureCoin, NULL, &rectCoin);
+        // drawText(renderer, 96, worldHeight - 10, 1, std::to_string(unitPlayer->getCountCoins()));
 
         //Draw the crosshair.  Assume that it's 16x16 pixels for simplicity.
         SDL_Rect rectCrosshair{ (worldWidth - 16) / 2, (worldHeight - 16) / 2, 16, 16 };
@@ -390,7 +413,7 @@ void Game::drawWalls(SDL_Renderer* renderer) {
             //Ensure that there wasn't an error eg. the player is somehow out of bounds of the world.
             if (distance > 0.0f) {
                 //Set the color of the wall to be drawn.
-                SDL_SetRenderDrawColor(renderer, 0, 0, (int)round(255 * fColor), 255);
+                SDL_SetRenderDrawColor(renderer, (int)round(50 * fColor), (int)round(50 * fColor), (int)round(50 * fColor), 255);
 
                 //Determine the height of the vertical line to be drawn.
                 float heightDraw = 1.0f * (atan(0.5f / distance) / fovRad * worldWidth * 2);
@@ -410,6 +433,55 @@ void Game::drawWalls(SDL_Renderer* renderer) {
     }
 }
 
+void Game::addAllSpritesToDrawList(SDL_Renderer* renderer) {
+    //Add any of the needed sprites to the draw list.
+    for (std::shared_ptr<Sprite> enemy : listUnitEnemies)
+        addSpriteToDrawList(enemy);
+
+    // for (std::shared_ptr<Sprite> pickup : listPickups)
+    //     addSpriteToDrawList(pickup);
+
+    for (std::shared_ptr<Sprite> projectile : listProjectiles)
+        addSpriteToDrawList(projectile);
+
+    addSpriteToDrawList(spriteFlag);
+}
+
+
+
+void Game::addSpriteToDrawList(std::shared_ptr<Sprite>& sprite) {
+    if (unitPlayer != nullptr && sprite != nullptr) {
+        //Check if the position of the sprite is visible.
+        //Note that this is set by the raycast function when drawWalls is called.
+        int indexCheck = (int)(sprite->getPos().x) + (int)(sprite->getPos().y) * Level::levelWidth;
+        if (indexCheck > -1 && indexCheck < Level::levelSize &&
+            listVisibleCells[indexCheck]) {
+            float distance = (unitPlayer->getPos() - sprite->getPos()).magnitude();
+            //Add the distance and sprite to the list.
+            listSpritesToDraw.push_back(std::pair<float, std::weak_ptr<Sprite>>(
+                distance, std::weak_ptr<Sprite>(sprite)));
+        }
+    }
+}
+
+
+
+void Game::sortAndDrawListSpritesToDraw(SDL_Renderer* renderer) {
+    if (listSpritesToDraw.empty() == false) {
+        //Sort the list based on the stored distances.
+        std::sort(listSpritesToDraw.begin(), listSpritesToDraw.end(),
+            [](auto a, auto b) { return (a.first < b.first); });
+
+        //Loop through the list of sprites and draw them from furthest to closest.
+        while (listSpritesToDraw.empty() == false) {
+            std::pair<float, std::weak_ptr<Sprite>> dataSelected = listSpritesToDraw.back();
+            if (auto spriteSelected = dataSelected.second.lock())
+                spriteSelected->draw(renderer, worldWidth, worldHeight, unitPlayer, fovRad, listDepthDraw);
+
+            listSpritesToDraw.pop_back();
+        }
+    }
+}
 
 void Game::drawText(SDL_Renderer* renderer, int offsetX, int offsetY, int size, std::string textToDraw) {
     if (textureFont != nullptr) {

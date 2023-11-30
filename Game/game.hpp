@@ -41,6 +41,9 @@ private:
 	void drawOverlayPlaying(SDL_Renderer* renderer);
 
 	void drawWalls(SDL_Renderer* renderer);
+	void addAllSpritesToDrawList(SDL_Renderer* renderer);
+	void addSpriteToDrawList(std::shared_ptr<Sprite>& sprite);
+	void sortAndDrawListSpritesToDraw(SDL_Renderer* renderer);
 	void drawText(SDL_Renderer* renderer, int offsetX, int offsetY, int size, std::string textToDraw);
 
 	static const int worldWidth = 240, worldHeight = 135;
@@ -53,10 +56,12 @@ private:
 	std::shared_ptr<Sprite> spriteFlag;
 
 	float listDepthDraw[worldWidth] = {};
+	std::vector<std::pair<float, std::weak_ptr<Sprite>>> listSpritesToDraw;
 
 	int mouseDownStatus = 0;
 
 	static const float fovRad;
+
 
 	std::unique_ptr<UnitPlayer> unitPlayer = nullptr;
 
