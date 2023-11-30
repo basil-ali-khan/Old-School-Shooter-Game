@@ -5,7 +5,7 @@
 // #include "SoundLoader.h"
 #include "Projectile.h"
 #include "Timer.h"
-class Projectile;
+// class Projectile;
 
 
 class Weapon
