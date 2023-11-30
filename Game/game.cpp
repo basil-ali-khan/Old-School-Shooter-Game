@@ -17,7 +17,7 @@ Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int wind
 		
         //Load the level data.
         Vector2D posStart, posFinish;
-        Level::setupStartandFinish(renderer, posStart, posFinish);
+        Level::setupAllEnemies(renderer, posStart, posFinish, listUnitEnemies);
         unitPlayer = std::make_unique<UnitPlayer>(renderer, posStart);
         spriteFlag = std::make_shared<Sprite>(renderer, posFinish, "Flag.bmp");
 
@@ -145,6 +145,33 @@ void Game::update(float dT, SDL_Renderer* renderer) {
     //Update.
     if (unitPlayer != nullptr) {
         unitPlayer->update(dT);
+    }
+
+    //Update the enemy units.
+    for (int count = 0; count < listUnitEnemies.size(); count++) {
+        auto& unitEnemySelected = listUnitEnemies[count];
+        if (unitEnemySelected != nullptr) {
+            unitEnemySelected->update(dT, renderer, *this, unitPlayer, listProjectiles);
+            if (unitEnemySelected->isAlive() == false) {
+                // if (unitEnemySelected->getHasChanceToDropPickup())
+                //     addRandomPickup(renderer, unitEnemySelected->getPos());
+
+                listUnitEnemies.erase(listUnitEnemies.begin() + count);
+                count--;
+            }
+        }
+    }
+
+    //Update the projectiles.
+    for (int count = 0; count < listProjectiles.size(); count++) {
+        auto& projectileSelected = listProjectiles.at(count);
+        if (projectileSelected != nullptr) {
+            projectileSelected->update(dT, unitPlayer, listUnitEnemies);
+            if (projectileSelected->getCollisionOccurred()) {
+                listProjectiles.erase(listProjectiles.begin() + count);
+                count--;
+            }
+        }
     }
 }
 

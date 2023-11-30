@@ -11,11 +11,22 @@ int main(int argc, char* args[]) {
 	//Seed the random number generator with the current time so that it will generate different numbers every time the game is run.
 	srand((unsigned)time(NULL));
 
-	if (SDL_Init(SDL_INIT_VIDEO < 0)) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 		std::cout << "Error: Couldn't initialize SDL Video or Audio = " << SDL_GetError() << std::endl;
 		return 1;
 	}
 	else {
+		//Setup the audio mixer.
+		if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
+			std::cout << "Error: Couldn't initialize Mix_OpenAudio = " << Mix_GetError() << std::endl;
+		}
+		else {
+			Mix_AllocateChannels(32);
+
+			//Output the name of the audio driver.
+			std::cout << "Audio driver = " << SDL_GetCurrentAudioDriver() << std::endl;
+		}
+
 		//Create the window.
 		SDL_Window* window = nullptr;
 

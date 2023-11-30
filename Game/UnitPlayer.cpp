@@ -3,7 +3,7 @@
 
 
 UnitPlayer::UnitPlayer(SDL_Renderer* renderer, Vector2D setPos) :
-	Unit(renderer, setPos, ""), angle(0.0f), speedMove(7.0f), speedTurn(2.0f) {
+	Unit(renderer, setPos, "", 20, Weapon(0, 4)), angle(0.0f), speedMove(7.0f), speedTurn(2.0f) {
 
 }
 

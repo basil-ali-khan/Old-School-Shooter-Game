@@ -8,6 +8,8 @@
 #include "SDL_mixer.h"
 #include "Sprite.h"
 #include "TextureLoader.h"
+#include "UnitEnemy.h"
+#include "Timer.h"
 #include "Level.h"
 #include "UnitPlayer.h"
 
@@ -56,6 +58,9 @@ private:
 	static const float fovRad;
 
 	std::unique_ptr<UnitPlayer> unitPlayer = nullptr;
+
+	std::vector<std::shared_ptr<UnitEnemy>> listUnitEnemies;
+	std::vector<std::shared_ptr<Projectile>> listProjectiles;
 
 	std::vector<bool> listVisibleCells;
 
