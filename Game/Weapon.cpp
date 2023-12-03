@@ -1,4 +1,5 @@
-#include "Weapon.h"
+#include "Weapon.hpp"
+
 
 bool Weapon::soundLoaded = false;
 Mix_Chunk* Weapon::mix_ChunkWeaponShoot = nullptr;

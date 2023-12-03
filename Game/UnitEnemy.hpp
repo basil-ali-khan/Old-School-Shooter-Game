@@ -1,7 +1,7 @@
 #pragma once
-#include "Unit.h"
-#include "UnitPlayer.h"
-#include "MathAddon.h"
+#include "Unit.hpp"
+#include "UnitPlayer.hpp"
+#include "MathAddon.hpp"
 class Game;
 
 
@@ -20,10 +20,12 @@ private:
 
 public:
 	UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, TemplateData unitEnemyTemplateData);
-	static void addUnitEnemyToListUsingTemplate(SDL_Renderer* renderer, Vector2D setPos, int templateID, std::vector<std::shared_ptr<UnitEnemy>>& listUnitEnemies);
-	void update(float dT, SDL_Renderer* renderer, Game& game, std::unique_ptr<UnitPlayer>& unitPlayer, std::vector<std::shared_ptr<Projectile>>& listProjectiles);
+	static void addUnitEnemyToListUsingTemplate(SDL_Renderer* renderer, Vector2D setPos, int templateID,
+		std::vector<std::shared_ptr<UnitEnemy>>& listUnitEnemies);
+	void update(float dT, SDL_Renderer* renderer, Game& game, std::unique_ptr<UnitPlayer>& unitPlayer, 
+		std::vector<std::shared_ptr<Projectile>>& listProjectiles);
 	bool checkIfUnitPlayerVisible(Game& game, std::unique_ptr<UnitPlayer>& unitPlayer);
-	// void removeHealth(int amount);
+	void removeHealth(int amount);
 	bool getHasChanceToDropPickup();
 
 

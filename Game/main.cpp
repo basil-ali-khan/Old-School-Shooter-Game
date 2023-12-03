@@ -1,7 +1,7 @@
 #include <iostream>
 #include "SDL.h"
 #include "SDL_mixer.h"
-#include "game.hpp"
+#include "Game.hpp"
 
 
 bool fullscreen = true;

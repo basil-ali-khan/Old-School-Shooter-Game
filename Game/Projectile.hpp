@@ -1,8 +1,8 @@
 #pragma once
-#include <SDL.h>
-#include "Sprite.h"
-#include "TextureLoader.h"
-#include "Level.h"
+#include "SDL2/SDL.h"
+#include "Sprite.hpp"
+#include "TextureLoader.hpp"
+#include "Level.hpp"
 class UnitPlayer;
 class UnitEnemy;
 

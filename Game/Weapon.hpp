@@ -1,11 +1,11 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include <SDL_mixer.h>
-// #include "SoundLoader.h"
-#include "Projectile.h"
-#include "Timer.h"
-// class Projectile;
+#include "SDL2_mixer/SDL_mixer.h"
+// #include "SoundLoader.hpp"
+#include "Projectile.hpp"
+#include "Timer.hpp"
+
 
 
 class Weapon
@@ -24,7 +24,7 @@ public:
 
 
 private:
-	Timer cooldownTimer = Timer(10.0f);
+	Timer cooldownTimer;
 
 	static bool soundLoaded;
 	static Mix_Chunk* mix_ChunkWeaponShoot;

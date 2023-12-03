@@ -1,8 +1,7 @@
 #pragma once
-#include "Unit.h"
-#include "Vector2D.h"
-#include "MathAddon.h"
-// #include "Level.h"
+#include "Unit.hpp"
+#include "Vector2D.hpp"
+#include "MathAddon.hpp"
 
 
 
@@ -16,9 +15,18 @@ public:
 	void setDirectionRight(int setDirectionRight);
 	void setAmountTurn(float setDirectionTurn);
 	float getAngle();
+	std::string getHealthString();
+	bool isHealthFull();
+	void addHealth(int amount);
+	void addCoin();
+	int getCountCoins();
 	bool isAmmoFull();
 	void addAmmo(int amount);
 	std::string computeAmmoString();
+
+	bool buyUpgradeHealthMax();
+	bool buyUpgradeAmmoMax();
+	bool buyUpgradeWeaponSpeed();
 
 
 private:
@@ -28,4 +36,8 @@ private:
 	float angle;
 	const float speedMove, speedTurn;
 
+
+	int countCoins = 0;
+
+	int countHealthMaxUpgrades = 0, countAmmoMaxUpgrades = 0, countWeaponSpeedUpgrades = 0;
 };

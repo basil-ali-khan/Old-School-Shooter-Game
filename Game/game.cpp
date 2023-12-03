@@ -1,7 +1,10 @@
-#include "game.hpp"
+#include "Game.hpp"
 
 
 const float Game::fovRad = MathAddon::angleDegToRad(60.0f);
+
+
+
 
 Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int windowHeight) :
     gameModeCurrent(Mode::instructions) {
@@ -14,10 +17,14 @@ Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int wind
         //Load some needed textures.
         textureFont = TextureLoader::loadTexture(renderer, "Font.bmp");
         textureCrosshair = TextureLoader::loadTexture(renderer, "Crosshair.bmp");
-		
+		//The following are for the in game overlay.
+        textureHeart = TextureLoader::loadTexture(renderer, "Heart.bmp");
+        textureAmmo = TextureLoader::loadTexture(renderer, "Battery.bmp");
+        textureCoin = TextureLoader::loadTexture(renderer, "Coin.bmp");
+
         //Load the level data.
         Vector2D posStart, posFinish;
-        Level::setupAllEnemies(renderer, posStart, posFinish, listUnitEnemies);
+        Level::setupAllEnemiesAndPickups(renderer, posStart, posFinish, listUnitEnemies, listPickups);
         unitPlayer = std::make_unique<UnitPlayer>(renderer, posStart);
         spriteFlag = std::make_shared<Sprite>(renderer, posFinish, "Flag.bmp");
 
@@ -70,6 +77,7 @@ Game::~Game() {
     }
     TextureLoader::deallocateTextures();
 }
+
 
 
 
@@ -149,6 +157,10 @@ void Game::update(float dT, SDL_Renderer* renderer) {
     //Update.
     if (unitPlayer != nullptr) {
         unitPlayer->update(dT);
+        if (unitPlayer->isAlive() == false)
+            gameModeCurrent = Mode::defeat;
+        else if (spriteFlag != nullptr && spriteFlag->checkOverlap(unitPlayer.get()))
+            gameModeCurrent = Mode::victory;
     }
 
     //Update the enemy units.
@@ -157,10 +169,22 @@ void Game::update(float dT, SDL_Renderer* renderer) {
         if (unitEnemySelected != nullptr) {
             unitEnemySelected->update(dT, renderer, *this, unitPlayer, listProjectiles);
             if (unitEnemySelected->isAlive() == false) {
-                // if (unitEnemySelected->getHasChanceToDropPickup())
-                //     addRandomPickup(renderer, unitEnemySelected->getPos());
+                if (unitEnemySelected->getHasChanceToDropPickup())
+                    addRandomPickup(renderer, unitEnemySelected->getPos());
 
                 listUnitEnemies.erase(listUnitEnemies.begin() + count);
+                count--;
+            }
+        }
+    }
+
+    //Update the pickups.
+    for (int count = 0; count < listPickups.size(); count++) {
+        auto& pickupSelected = listPickups.at(count);
+        if (pickupSelected != nullptr) {
+            pickupSelected->update(unitPlayer);
+            if (pickupSelected->getConsumed()) {
+                listPickups.erase(listPickups.begin() + count);
                 count--;
             }
         }
@@ -203,7 +227,16 @@ void Game::draw(SDL_Renderer* renderer, std::string framerate) {
     case Mode::playing:
         drawOverlayPlaying(renderer);
         break;
+    case Mode::victory:
+        drawOverlayVictory(renderer);
+        break;
+    case Mode::defeat:
+        drawOverlayDefeat(renderer);
+        break;
     }
+
+
+
 
     //Set the render target back to the window.
     SDL_SetRenderTarget(renderer, NULL);
@@ -253,30 +286,55 @@ void Game::drawOverlayInstructions(SDL_Renderer* renderer) {
 void Game::drawOverlayPlaying(SDL_Renderer* renderer) {
     if (unitPlayer != nullptr) {
         //Draw a transparent black overlay that covers a bit of the bottom left of the screen.
-        // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
-        // SDL_Rect rectBackground{ 0, worldHeight - 14, 110, 14 };
-        // SDL_RenderFillRect(renderer, &rectBackground);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
+        SDL_Rect rectBackground{ 0, worldHeight - 14, 110, 14 };
+        SDL_RenderFillRect(renderer, &rectBackground);
 
-        // //Draw the heart image and the players amount of health.
-        // SDL_Rect rectHeart{ 0, worldHeight - 19, 16, 16 };
-        // SDL_RenderCopy(renderer, textureHeart, NULL, &rectHeart);
-        // drawText(renderer, 16, worldHeight - 10, 1, unitPlayer->getHealthString());
+        //Draw the heart image and the players amount of health.
+        SDL_Rect rectHeart{ 0, worldHeight - 19, 16, 16 };
+        SDL_RenderCopy(renderer, textureHeart, NULL, &rectHeart);
+        drawText(renderer, 16, worldHeight - 10, 1, unitPlayer->getHealthString());
 
-        // //Draw the battery/ammo image and the players amount of ammo.
-        // SDL_Rect rectAmmo{ 40, worldHeight - 19, 16, 16 };
-        // SDL_RenderCopy(renderer, textureAmmo, NULL, &rectAmmo);
-        // drawText(renderer, 54, worldHeight - 10, 1, unitPlayer->computeAmmoString());
+        //Draw the battery/ammo image and the players amount of ammo.
+        SDL_Rect rectAmmo{ 40, worldHeight - 19, 16, 16 };
+        SDL_RenderCopy(renderer, textureAmmo, NULL, &rectAmmo);
+        drawText(renderer, 54, worldHeight - 10, 1, unitPlayer->computeAmmoString());
 
-        // //Draw the coin image and the players amount of coins.
-        // SDL_Rect rectCoin{ 80, worldHeight - 19, 16, 16 };
-        // SDL_RenderCopy(renderer, textureCoin, NULL, &rectCoin);
-        // drawText(renderer, 96, worldHeight - 10, 1, std::to_string(unitPlayer->getCountCoins()));
+        //Draw the coin image and the players amount of coins.
+        SDL_Rect rectCoin{ 80, worldHeight - 19, 16, 16 };
+        SDL_RenderCopy(renderer, textureCoin, NULL, &rectCoin);
+        drawText(renderer, 96, worldHeight - 10, 1, std::to_string(unitPlayer->getCountCoins()));
 
         //Draw the crosshair.  Assume that it's 16x16 pixels for simplicity.
         SDL_Rect rectCrosshair{ (worldWidth - 16) / 2, (worldHeight - 16) / 2, 16, 16 };
         SDL_RenderCopy(renderer, textureCrosshair, NULL, &rectCrosshair);
     }
 }
+
+
+void Game::drawOverlayVictory(SDL_Renderer* renderer) {
+    //Draw a transparent green overlay that covers the whole screen.
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 160);
+    SDL_Rect rectBackground{ 0,0, worldWidth, worldHeight };
+    SDL_RenderFillRect(renderer, &rectBackground);
+
+    //Draw the text.
+    drawText(renderer, 53, 53, 3, "You Won!");
+    drawText(renderer, 63, 89, 1, "-Press ESC to Quit-");
+}
+
+
+void Game::drawOverlayDefeat(SDL_Renderer* renderer) {
+    //Draw a transparent red overlay that covers the whole screen.
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 192);
+    SDL_Rect rectBackground{ 0,0, worldWidth, worldHeight };
+    SDL_RenderFillRect(renderer, &rectBackground);
+
+    //Draw the text.
+    drawText(renderer, 44, 53, 3, "You Lost!");
+    drawText(renderer, 63, 89, 1, "-Press ESC to Quit-");
+}
+
 
 
 std::pair<float,float> Game::raycast(Vector2D posStart, Vector2D normal, bool findWallFPlayerT) {
@@ -433,13 +491,15 @@ void Game::drawWalls(SDL_Renderer* renderer) {
     }
 }
 
+
+
 void Game::addAllSpritesToDrawList(SDL_Renderer* renderer) {
     //Add any of the needed sprites to the draw list.
     for (std::shared_ptr<Sprite> enemy : listUnitEnemies)
         addSpriteToDrawList(enemy);
 
-    // for (std::shared_ptr<Sprite> pickup : listPickups)
-    //     addSpriteToDrawList(pickup);
+    for (std::shared_ptr<Sprite> pickup : listPickups)
+        addSpriteToDrawList(pickup);
 
     for (std::shared_ptr<Sprite> projectile : listProjectiles)
         addSpriteToDrawList(projectile);
@@ -483,6 +543,8 @@ void Game::sortAndDrawListSpritesToDraw(SDL_Renderer* renderer) {
     }
 }
 
+
+
 void Game::drawText(SDL_Renderer* renderer, int offsetX, int offsetY, int size, std::string textToDraw) {
     if (textureFont != nullptr) {
         int cursorOffsetX = 0;
@@ -501,5 +563,24 @@ void Game::drawText(SDL_Renderer* renderer, int offsetX, int offsetY, int size, 
             //Advance the cursor.
             cursorOffsetX += 6 * size;
         }
+    }
+}
+
+
+
+void Game::addRandomPickup(SDL_Renderer* renderer, Vector2D pos) {
+    //Pick the index of a pickup to add at random.  Note if it's a value above 3 then it won't add anything.
+    int index = rand() % (3 + 7);
+
+    switch (index) {
+    case 0:
+        listPickups.push_back(std::make_shared<Health>(renderer, pos));
+        break;
+    case 1:
+        listPickups.push_back(std::make_shared<Coin>(renderer, pos));
+        break;
+    case 2:
+        listPickups.push_back(std::make_shared<Ammo>(renderer, pos));
+        break;
     }
 }

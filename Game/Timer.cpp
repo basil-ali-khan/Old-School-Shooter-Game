@@ -1,5 +1,5 @@
-#include "Timer.h"
-#include "iostream"
+#include "Timer.hpp"
+
 
 
 Timer::Timer(float setTimeSMax, float setTimeSCurrent) : timeSMax(setTimeSMax), timeSCurrent(setTimeSCurrent) {

@@ -1,7 +1,7 @@
 #pragma once
-#include "SDL.h"
-#include "Sprite.h"
-#include "Weapon.h"
+#include "SDL2/SDL.h"
+#include "Sprite.hpp"
+#include "Weapon.hpp"
 
 
 
@@ -9,8 +9,12 @@ class Unit : public Sprite
 {
 public:
 	Unit(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, int setHealthMax, Weapon setWeapon);
-	bool isAlive();
 	void update(float dT);
+	void draw(SDL_Renderer* renderer);
+	bool isAlive();
+	void removeHealth(int amount);
+
+
 protected:
 	int healthMax;
 	int healthCurrent = healthMax;

@@ -1,11 +1,11 @@
-#include "UnitEnemy.h"
-#include "game.hpp"
+#include "UnitEnemy.hpp"
+#include "Game.hpp"
 
 
 const std::vector<UnitEnemy::TemplateData> UnitEnemy::listTemplateData = {
 	{"Alien-Small_2.bmp", 1, Weapon(-1, 1), false },
-	// {"Alien Medium.bmp", 3, Weapon(15, 4), true },
-	// {"Alien Large.bmp", 6, Weapon(30, 8), true }
+	{"Alien Medium.bmp", 3, Weapon(15, 4), true },
+	{"Alien Large.bmp", 6, Weapon(30, 8), true }
 };
 
 
@@ -66,25 +66,25 @@ void UnitEnemy::update(float dT, SDL_Renderer* renderer, Game& game, std::unique
 
 
 bool UnitEnemy::checkIfUnitPlayerVisible(Game& game, std::unique_ptr<UnitPlayer>& unitPlayer) {
-	// if (unitPlayer != nullptr) {
-	// 	Vector2D normal((unitPlayer->getPos() - pos).normalize());
+	if (unitPlayer != nullptr) {
+		Vector2D normal((unitPlayer->getPos() - pos).normalize());
 
-	// 	float distance = game.raycast(pos, normal, true).first;
-	// 	if (distance > 0.0f)
-	// 		return true;
-	// }
+		float distance = game.raycast(pos, normal, true).first;
+		if (distance > 0.0f)
+			return true;
+	}
 
 	return false;
 }
 
 
 
-// void UnitEnemy::removeHealth(int damage) {
-// 	Unit::removeHealth(damage);
+void UnitEnemy::removeHealth(int damage) {
+	Unit::removeHealth(damage);
 
-// 	if (damage > 0)
-// 		justHurtTimer.resetToMax();
-// }
+	if (damage > 0)
+		justHurtTimer.resetToMax();
+}
 
 
 

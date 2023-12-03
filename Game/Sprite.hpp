@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <memory>
-#include "SDL.h"
-#include "TextureLoader.h"
-#include "Vector2D.h"
+#include "SDL2/SDL.h"
+#include "TextureLoader.hpp"
+#include "Vector2D.hpp"
 class UnitPlayer;
 class Game;
 

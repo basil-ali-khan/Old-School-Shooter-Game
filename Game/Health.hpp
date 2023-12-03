@@ -3,9 +3,9 @@
 
 
 
-class Coin : public Pickup
+class Health : public Pickup
 {
 public:
-	Coin(SDL_Renderer* renderer, Vector2D setPos);
+	Health(SDL_Renderer* renderer, Vector2D setPos);
 	bool addPickupToPlayer(std::unique_ptr<UnitPlayer>& unitPlayer);
 };

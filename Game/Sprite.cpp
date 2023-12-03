@@ -1,6 +1,6 @@
-#include "Sprite.h"
-#include "UnitPlayer.h"
-#include "game.hpp"
+#include "Sprite.hpp"
+#include "UnitPlayer.hpp"
+#include "Game.hpp"
 
 
 
