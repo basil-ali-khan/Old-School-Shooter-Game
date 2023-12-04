@@ -1,6 +1,6 @@
 #include <iostream>
-#include "SDL.h"
-#include "SDL_mixer.h"
+#include "SDL2/SDL.h"
+#include "SDL2_mixer/SDL_mixer.h"
 #include "Game.hpp"
 
 
@@ -29,13 +29,13 @@ int main(int argc, char* args[]) {
 			std::cout << "Audio driver = " << SDL_GetCurrentAudioDriver() << std::endl;
 		}
 
+
 		//Create the window.
 		SDL_Window* window = nullptr;
-
 		if (fullscreen)
-			window = SDL_CreateWindow("Aliens Onboard!", 0, 0, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			window = SDL_CreateWindow("Falling Sand Platformer Game", 0, 0, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		else
-			window = SDL_CreateWindow("Aliens Onboard", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 540, 0);
+			window = SDL_CreateWindow("Falling Sand Platformer Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 540, 0);
 
 		if (window == nullptr) {
 			std::cout << "Error: Couldn't create window = " << SDL_GetError() << std::endl;

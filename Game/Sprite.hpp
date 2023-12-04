@@ -18,6 +18,7 @@ public:
 		float fovRad, float listDepthDraw[]);
 	bool checkOverlap(Sprite* other);
 	Vector2D getPos();
+	void setPos(Vector2D setPos);
 
 
 protected:

@@ -19,7 +19,7 @@ private:
 
 
 public:
-	UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, TemplateData unitEnemyTemplateData);
+	UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, TemplateData unitEnemyTemplateData, float setSpeed);
 	static void addUnitEnemyToListUsingTemplate(SDL_Renderer* renderer, Vector2D setPos, int templateID,
 		std::vector<std::shared_ptr<UnitEnemy>>& listUnitEnemies);
 	void update(float dT, SDL_Renderer* renderer, Game& game, std::unique_ptr<UnitPlayer>& unitPlayer, 
@@ -30,6 +30,7 @@ public:
 
 
 private:
+	float speed;
 	Timer justHurtTimer;
 	Timer playerBecameVisibleTimer;
 

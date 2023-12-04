@@ -103,3 +103,8 @@ bool Sprite::checkOverlap(Sprite* other) {
 Vector2D Sprite::getPos() {
     return pos;
 }
+
+
+void Sprite::setPos(Vector2D setPos) {
+    pos = setPos;
+}

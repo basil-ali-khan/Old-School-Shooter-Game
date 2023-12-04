@@ -5,7 +5,7 @@
 
 Pickup::Pickup(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, std::string filenameForSound,
 	bool setConsumable) :
-	Sprite(renderer, setPos, filenameForTexture), //mix_ChunkPickup(SoundLoader::loadSound(filenameForSound)),
+	Sprite(renderer, setPos, filenameForTexture), // mix_ChunkPickup(SoundLoader::loadSound(filenameForSound)),
 	consumable(setConsumable) {
 
 }

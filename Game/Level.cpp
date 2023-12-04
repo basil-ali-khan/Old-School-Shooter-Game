@@ -6,7 +6,7 @@ const char* Level::levelData{
     "XXXXXXXXXFXX"
     "X  S  X    X"
     "X  H  X  0 X"
-    "X          X"
+    "X  C     A X"
     "XXXXXXXXXXXX"
 
 
@@ -14,6 +14,8 @@ const char* Level::levelData{
 
 const int Level::levelWidth = 12;
 const size_t Level::levelSize = strlen(levelData);
+
+
 
 
 

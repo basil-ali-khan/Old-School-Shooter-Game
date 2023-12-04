@@ -17,7 +17,7 @@ Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int wind
         //Load some needed textures.
         textureFont = TextureLoader::loadTexture(renderer, "Font.bmp");
         textureCrosshair = TextureLoader::loadTexture(renderer, "Crosshair.bmp");
-		//The following are for the in game overlay.
+        //The following are for the in game overlay.
         textureHeart = TextureLoader::loadTexture(renderer, "Heart.bmp");
         textureAmmo = TextureLoader::loadTexture(renderer, "Battery.bmp");
         textureCoin = TextureLoader::loadTexture(renderer, "Coin.bmp");
@@ -76,8 +76,8 @@ Game::~Game() {
         textureScreen = nullptr;
     }
     TextureLoader::deallocateTextures();
+    // SoundLoader::deallocateSounds();
 }
-
 
 
 
@@ -116,8 +116,6 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
                 //Quit the game.
             case SDL_SCANCODE_ESCAPE:
                 running = false;
-                break;
-            default:
                 break;
             }
             break;
@@ -207,9 +205,10 @@ void Game::update(float dT, SDL_Renderer* renderer) {
 
 void Game::draw(SDL_Renderer* renderer, std::string framerate) {
     //Clear the screen.
-    // Set the draw color to black (it will be the color of the ceiling)
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	SDL_RenderClear(renderer);
+    //Set the draw color to black (it will be the color of the ceiling)
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
 
     //Switch the render target to textureScreen and clear it.
     SDL_SetRenderTarget(renderer, textureScreen);
@@ -235,7 +234,8 @@ void Game::draw(SDL_Renderer* renderer, std::string framerate) {
         break;
     }
 
-
+    //Draw the framerate
+    //drawText(renderer, 2, 2, 1, framerate);
 
 
     //Set the render target back to the window.
@@ -251,8 +251,8 @@ void Game::draw(SDL_Renderer* renderer, std::string framerate) {
 
 
 void Game::drawWorld(SDL_Renderer* renderer) {
-    // Set the draw color to light blue (for the floor)
-    SDL_SetRenderDrawColor(renderer, 75, 75,75, 255);
+    //Set the draw color to light gray (for the floor)
+    SDL_SetRenderDrawColor(renderer, 75, 75, 75, 255);
     //Draw a rectangle that covers the bottom half of the screen.
     //Note that the +1 to the height is incase worldHeight / 2 has round off error.
     SDL_Rect rectFloor = { 0, worldHeight / 2, worldWidth, (worldHeight / 2 + 1) };

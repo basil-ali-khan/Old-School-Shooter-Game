@@ -14,7 +14,6 @@ public:
 	float angle() { return atan2(y, x); }
 
 	float magnitude() { return sqrt(x * x + y * y); }
-	float Q_rsqrt(float number);
 	Vector2D normalize();
 	Vector2D getNegativeReciprocal() { return Vector2D(-y, x); }
 

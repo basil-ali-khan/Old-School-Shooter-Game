@@ -3,7 +3,7 @@
 
 
 const std::vector<UnitEnemy::TemplateData> UnitEnemy::listTemplateData = {
-	{"Alien-Small_2.bmp", 1, Weapon(-1, 1), false },
+	{"Alien Small.bmp", 1, Weapon(-1, 1), false },
 	{"Alien Medium.bmp", 3, Weapon(15, 4), true },
 	{"Alien Large.bmp", 6, Weapon(30, 8), true }
 };
@@ -11,13 +11,14 @@ const std::vector<UnitEnemy::TemplateData> UnitEnemy::listTemplateData = {
 
 
 
-UnitEnemy::UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, TemplateData unitEnemyTemplateData) :
+UnitEnemy::UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, TemplateData unitEnemyTemplateData, float setSpeed) :
 	Unit(renderer, setPos,
 		unitEnemyTemplateData.filenameForTexture,
 		unitEnemyTemplateData.healthMax,
 		unitEnemyTemplateData.weapon),
 	justHurtTimer(0.25f), playerBecameVisibleTimer(2.0f),
-	hasChanceToDropPickup(unitEnemyTemplateData.hasChanceToDropPickup) {
+	hasChanceToDropPickup(unitEnemyTemplateData.hasChanceToDropPickup),
+	speed(setSpeed) {
 
 }
 
@@ -26,7 +27,7 @@ UnitEnemy::UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, TemplateData unitE
 void UnitEnemy::addUnitEnemyToListUsingTemplate(SDL_Renderer* renderer, Vector2D setPos, int templateID,
 	std::vector<std::shared_ptr<UnitEnemy>>& listUnitEnemies) {
 	if (templateID > -1 && templateID < listTemplateData.size()) {
-		listUnitEnemies.push_back(std::make_shared<UnitEnemy>(renderer, setPos, listTemplateData[templateID]));
+		listUnitEnemies.push_back(std::make_shared<UnitEnemy>(renderer, setPos, listTemplateData[templateID], 2));
 	}
 }
 
@@ -61,6 +62,16 @@ void UnitEnemy::update(float dT, SDL_Renderer* renderer, Game& game, std::unique
 
 		weapon.shootProjectile(renderer, pos, directionNormal, listProjectiles, false, angleSoundDeg, directionPlayer.magnitude());
 	}
+
+	// Check if player is in sight
+    if (game.raycast(getPos(), (unitPlayer->getPos() - getPos()).normalize(), true).first > 0) {
+        // Move towards player
+        Vector2D directionToPlayer = (unitPlayer->getPos() - getPos()).normalize();
+        Vector2D newPos = getPos() + directionToPlayer * speed * dT;
+        if (!Level::isBlockAtPos(static_cast<int>(newPos.x), static_cast<int>(newPos.y))) {
+			setPos(newPos);
+        }
+    }
 }
 
 
