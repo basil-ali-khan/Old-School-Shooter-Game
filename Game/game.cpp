@@ -1,4 +1,4 @@
-#include "game.hpp"
+#include "Game.hpp"
 
 
 const float Game::fovRad = MathAddon::angleDegToRad(60.0f);
@@ -14,10 +14,14 @@ Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int wind
         //Load some needed textures.
         textureFont = TextureLoader::loadTexture(renderer, "Font.bmp");
         textureCrosshair = TextureLoader::loadTexture(renderer, "Crosshair.bmp");
-		
+        //The following are for the in game overlay.
+        textureHeart = TextureLoader::loadTexture(renderer, "Heart.bmp");
+        textureAmmo = TextureLoader::loadTexture(renderer, "Battery.bmp");
+        textureCoin = TextureLoader::loadTexture(renderer, "Coin.bmp");
+
         //Load the level data.
         Vector2D posStart, posFinish;
-        Level::setupAllEnemies(renderer, posStart, posFinish, listUnitEnemies);
+        Level::setupAllEnemiesAndPickups(renderer, posStart, posFinish, listUnitEnemies, listPickups);
         unitPlayer = std::make_unique<UnitPlayer>(renderer, posStart);
         spriteFlag = std::make_shared<Sprite>(renderer, posFinish, "Flag.bmp");
 
@@ -69,6 +73,7 @@ Game::~Game() {
         textureScreen = nullptr;
     }
     TextureLoader::deallocateTextures();
+    // SoundLoader::deallocateSounds();
 }
 
 
@@ -109,8 +114,6 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
             case SDL_SCANCODE_ESCAPE:
                 running = false;
                 break;
-            default:
-                break;
             }
             break;
         }
@@ -122,7 +125,7 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
 
     if (unitPlayer != nullptr && gameModeCurrent == Mode::playing) {
         //A more responsive/faster way to check keypresses for the unit movement.
-        const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
+        const Uint8* keyboardState = SDL_GetKeyboardState(NULL); // an array of the states of all keys
         //Make the unit move if needed.
         if (keyboardState[SDL_SCANCODE_A])
             unitPlayer->setDirectionRight(-1);
@@ -133,9 +136,13 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
         if (keyboardState[SDL_SCANCODE_S])
             unitPlayer->setDirectionForward(-1);
 
-        //Make the unit turn if needed.
+        // Make the unit turn if needed.
         if (mouseXOffset != 0)
             unitPlayer->setAmountTurn((float)mouseXOffset / windowWidth);
+
+        //Make the unit shoot if needed.
+        if (mouseDownStatus == SDL_BUTTON_LEFT)
+            unitPlayer->shootProjectile(renderer, listProjectiles);
     }
 }
 
@@ -145,6 +152,10 @@ void Game::update(float dT, SDL_Renderer* renderer) {
     //Update.
     if (unitPlayer != nullptr) {
         unitPlayer->update(dT);
+        if (unitPlayer->isAlive() == false)
+            gameModeCurrent = Mode::defeat;
+        else if (spriteFlag != nullptr && spriteFlag->checkOverlap(unitPlayer.get()))
+            gameModeCurrent = Mode::victory;
     }
 
     //Update the enemy units.
@@ -153,10 +164,30 @@ void Game::update(float dT, SDL_Renderer* renderer) {
         if (unitEnemySelected != nullptr) {
             unitEnemySelected->update(dT, renderer, *this, unitPlayer, listProjectiles);
             if (unitEnemySelected->isAlive() == false) {
-                // if (unitEnemySelected->getHasChanceToDropPickup())
-                //     addRandomPickup(renderer, unitEnemySelected->getPos());
+                if (unitEnemySelected->getHasChanceToDropPickup())
+                    addRandomPickup(renderer, unitEnemySelected->getPos());
 
                 listUnitEnemies.erase(listUnitEnemies.begin() + count);
+                count--;
+            }
+        }
+    }
+
+    // if all enemies dead, increment difficulty and spawn new enemies
+    if (listUnitEnemies.size() == 2) {
+        Level::incrementDifficulty();
+        Vector2D posStart, posFinish;
+        Level::setupAllEnemiesAndPickups(renderer, posStart, posFinish, listUnitEnemies, listPickups);
+        levelIncrementOverlayTimer = 300;
+    }
+
+    //Update the pickups.
+    for (int count = 0; count < listPickups.size(); count++) {
+        auto& pickupSelected = listPickups.at(count);
+        if (pickupSelected != nullptr) {
+            pickupSelected->update(unitPlayer);
+            if (pickupSelected->getConsumed()) {
+                listPickups.erase(listPickups.begin() + count);
                 count--;
             }
         }
@@ -179,9 +210,10 @@ void Game::update(float dT, SDL_Renderer* renderer) {
 
 void Game::draw(SDL_Renderer* renderer, std::string framerate) {
     //Clear the screen.
-    // Set the draw color to black (it will be the color of the ceiling)
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	SDL_RenderClear(renderer);
+    //Set the draw color to black (it will be the color of the ceiling)
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+
 
     //Switch the render target to textureScreen and clear it.
     SDL_SetRenderTarget(renderer, textureScreen);
@@ -198,8 +230,21 @@ void Game::draw(SDL_Renderer* renderer, std::string framerate) {
         break;
     case Mode::playing:
         drawOverlayPlaying(renderer);
+        if (levelIncrementOverlayTimer > 0) {
+            levelIncrementOverlayTimer--;
+            drawOverlayLevelIncrement(renderer);
+        }
+        break;
+    case Mode::victory:
+        drawOverlayVictory(renderer);
+        break;
+    case Mode::defeat:
+        drawOverlayDefeat(renderer);
         break;
     }
+
+    // Draw the framerate
+    // drawText(renderer, 2, 2, 1, framerate);
 
     //Set the render target back to the window.
     SDL_SetRenderTarget(renderer, NULL);
@@ -214,8 +259,8 @@ void Game::draw(SDL_Renderer* renderer, std::string framerate) {
 
 
 void Game::drawWorld(SDL_Renderer* renderer) {
-    // Set the draw color to light blue (for the floor)
-    SDL_SetRenderDrawColor(renderer, 192, 192,192, 255);
+    //Set the draw color to light gray (for the floor)
+    SDL_SetRenderDrawColor(renderer, 75, 75, 75, 255);
     //Draw a rectangle that covers the bottom half of the screen.
     //Note that the +1 to the height is incase worldHeight / 2 has round off error.
     SDL_Rect rectFloor = { 0, worldHeight / 2, worldWidth, (worldHeight / 2 + 1) };
@@ -223,6 +268,10 @@ void Game::drawWorld(SDL_Renderer* renderer) {
 
 
     drawWalls(renderer);
+    addAllSpritesToDrawList(renderer);
+    //Draw a number on the screen for the number of sprites that need to be drawn.
+    // drawText(renderer, 2, 14, 1, std::to_string(listSpritesToDraw.size()));
+    sortAndDrawListSpritesToDraw(renderer);
 }
 
 
@@ -239,6 +288,11 @@ void Game::drawOverlayInstructions(SDL_Renderer* renderer) {
     drawText(renderer, 55, 65, 1, "Left Click:  Hold to Shoot");
     drawText(renderer, 55, 80, 1, "ESC:         Quit");
     drawText(renderer, 72, 100, 1, "-Click to Start-");
+    // drawText(renderer, 440, 280 + 0*(15*5), 5, "W, A, S, D:  Movement");
+    // drawText(renderer, 440, 280 + 1*(15*5), 5, "Move Mouse:  Turn");
+    // drawText(renderer, 440, 280 + 2*(15*5), 5, "Left Click:  Hold to Shoot");
+    // drawText(renderer, 440, 280 + 3*(15*5), 5, "ESC:         Quit");
+    // drawText(renderer, 776, 280 + 4*(15*5), 5, "-Click to Start-");
 }
 
 
@@ -249,14 +303,63 @@ void Game::drawOverlayPlaying(SDL_Renderer* renderer) {
         SDL_Rect rectBackground{ 0, worldHeight - 14, 110, 14 };
         SDL_RenderFillRect(renderer, &rectBackground);
 
+        //Draw the heart image and the players amount of health.
+        SDL_Rect rectHeart{ 0, worldHeight - 19, 16, 16 };
+        SDL_RenderCopy(renderer, textureHeart, NULL, &rectHeart);
+        drawText(renderer, 16, worldHeight - 10, 1, unitPlayer->getHealthString());
+
+        //Draw the battery/ammo image and the players amount of ammo.
+        SDL_Rect rectAmmo{ 40, worldHeight - 19, 16, 16 };
+        SDL_RenderCopy(renderer, textureAmmo, NULL, &rectAmmo);
+        drawText(renderer, 54, worldHeight - 10, 1, unitPlayer->computeAmmoString());
+
+        //Draw the coin image and the players amount of coins.
+        SDL_Rect rectCoin{ 80, worldHeight - 19, 16, 16 };
+        SDL_RenderCopy(renderer, textureCoin, NULL, &rectCoin);
+        drawText(renderer, 96, worldHeight - 10, 1, std::to_string(unitPlayer->getCountCoins()));
+
         //Draw the crosshair.  Assume that it's 16x16 pixels for simplicity.
         SDL_Rect rectCrosshair{ (worldWidth - 16) / 2, (worldHeight - 16) / 2, 16, 16 };
         SDL_RenderCopy(renderer, textureCrosshair, NULL, &rectCrosshair);
     }
 }
 
+void Game::drawOverlayLevelIncrement(SDL_Renderer* renderer) {
+    //Draw some text in the upper half of the screen that says level has been incremented
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
+    SDL_Rect rectBackground{ 0,0, worldWidth, worldHeight / 5 };
+    SDL_RenderFillRect(renderer, &rectBackground);
 
-std::pair<float,float> Game::raycast(Vector2D posStart, Vector2D normal, bool findWallFPlayerT) {
+    drawText(renderer, 72, 8, 1, "Level Incremented");
+}
+
+
+void Game::drawOverlayVictory(SDL_Renderer* renderer) {
+    //Draw a transparent green overlay that covers the whole screen.
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 160);
+    SDL_Rect rectBackground{ 0,0, worldWidth, worldHeight };
+    SDL_RenderFillRect(renderer, &rectBackground);
+
+    //Draw the text.
+    drawText(renderer, 53, 53, 3, "You Won!");
+    drawText(renderer, 63, 89, 1, "-Press ESC to Quit-");
+}
+
+
+void Game::drawOverlayDefeat(SDL_Renderer* renderer) {
+    //Draw a transparent red overlay that covers the whole screen.
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 192);
+    SDL_Rect rectBackground{ 0,0, worldWidth, worldHeight };
+    SDL_RenderFillRect(renderer, &rectBackground);
+
+    //Draw the text.
+    drawText(renderer, 44, 53, 3, "You Lost!");
+    drawText(renderer, 63, 89, 1, "-Press ESC to Quit-");
+}
+
+
+
+std::tuple<float,float, char> Game::raycast(Vector2D posStart, Vector2D normal, bool findWallFPlayerT) {
     //Start at the start position and move cell by cell on the level in the direction of the input normal.
     //If findWall then find the distance of the closest wall in the specified direction.
     //Otherwise check if the player is found before a wall (basically is the player visible from posStart or not).
@@ -342,22 +445,46 @@ std::pair<float,float> Game::raycast(Vector2D posStart, Vector2D normal, bool fi
         if (indexCheck > -1 && indexCheck < Level::levelSize) {
             //Check if looking for a wall or the player
             if (findWallFPlayerT == false) {
-                if (Level::levelData[indexCheck] == Level::symbolWall)
+                if (Level::levelData[indexCheck] == Level::symbolXWall)
                     //A wall was found so output it's distance and fColor.
-                    return std::pair<float, float>(distance, fColor);
+                    return std::tuple<float, float, char>(distance, fColor, 'X');
+                else if (Level::levelData[indexCheck] == Level::symbolYWall)
+                    //A wall was found so output it's distance and fColor.
+                    return std::tuple<float, float, char>(distance, fColor, 'Y');
+                else if (Level::levelData[indexCheck] == Level::symbolZWall)
+                    //A wall was found so output it's distance and fColor.
+                    return std::tuple<float, float, char>(distance, fColor, 'Z');
+                else if (Level::levelData[indexCheck] == Level::symbolJWall)
+                    //A wall was found so output it's distance and fColor.
+                    return std::tuple<float, float, char>(distance, fColor, 'J');
+                else if (Level::levelData[indexCheck] == Level::symbolKWall)
+                    //A wall was found so output it's distance and fColor.
+                    return std::tuple<float, float, char>(distance, fColor, 'K');
+                else if (Level::levelData[indexCheck] == Level::symbolDoorOne and Level::difficulty == 1)
+                    //A wall was found so output it's distance and fColor.
+                    return std::tuple<float, float, char>(distance, fColor, 'L');
+                else if (Level::levelData[indexCheck] == Level::symbolDoorTwo and Level::difficulty == 2)
+                    //A wall was found so output it's distance and fColor.
+                    return std::tuple<float, float, char>(distance, fColor, 'M');
+                else if (Level::levelData[indexCheck] == Level::symbolDoorThree and Level::difficulty == 3)
+                    //A wall was found so output it's distance and fColor.
+                    return std::tuple<float, float, char>(distance, fColor, 'N');
+                else if (Level::levelData[indexCheck] == Level::symbolDoorFour and Level::difficulty == 4)
+                    //A wall was found so output it's distance and fColor.
+                    return std::tuple<float, float, char>(distance, fColor, 'O');
                 else
                     //No wall was found so ensure that the cell on listVisibleCells is set to true.
                     if (listVisibleCells[indexCheck] == false)
                         listVisibleCells[indexCheck] = true;
             }
             else {
-                if (Level::levelData[indexCheck] == Level::symbolWall)
+                if (Level::levelData[indexCheck] == Level::symbolXWall or Level::levelData[indexCheck] == Level::symbolYWall or Level::levelData[indexCheck] == Level::symbolZWall or Level::levelData[indexCheck] == Level::symbolJWall or Level::levelData[indexCheck] == Level::symbolKWall or (Level::difficulty == 1 and Level::levelData[indexCheck] == Level::symbolDoorOne) or (Level::difficulty == 2 and Level::levelData[indexCheck] == Level::symbolDoorTwo) or (Level::difficulty == 3 and Level::levelData[indexCheck] == Level::symbolDoorThree) or (Level::difficulty == 4 and Level::levelData[indexCheck] == Level::symbolDoorFour))
                     //A wall was found before the player so stop checking.
                     checking = false;
                 else if (unitPlayer != nullptr && iPosCheckX == (int)unitPlayer->getPos().x && 
                     iPosCheckY == (int)unitPlayer->getPos().y)
                     //No wall was found but the player was so output it's distance and a dummy fColor.
-                    return std::pair<float, float>(distance, 1.0f);
+                    return std::tuple<float, float, char>(distance, 1.0f, '_');
             }
         }
         else
@@ -366,7 +493,7 @@ std::pair<float,float> Game::raycast(Vector2D posStart, Vector2D normal, bool fi
     }
 
     //Nothing was found so output a negative distance and fColor as 1.0f.
-    return std::pair<float, float>(-0.001f, 1.0f);
+    return std::tuple<float, float, char>(-0.001f, 1.0f, '_');
 }
 
 
@@ -383,14 +510,32 @@ void Game::drawWalls(SDL_Renderer* renderer) {
             const float angleCurrent = unitPlayer->getAngle() + angleOffset;
 
             //Perform a raycast in the direction of the current vertical line to determine how far away it is.
-            std::pair<float, float> raycastData = raycast(unitPlayer->getPos(), Vector2D(angleCurrent), false);
-            float distance = raycastData.first;
-            float fColor = raycastData.second;
+            std::tuple<float, float, char> raycastData = raycast(unitPlayer->getPos(), Vector2D(angleCurrent), false);
+            float distance = std::get<0>(raycastData);
+            float fColor = std::get<1>(raycastData);
+            char wallType = std::get<2>(raycastData);
 
             //Ensure that there wasn't an error eg. the player is somehow out of bounds of the world.
             if (distance > 0.0f) {
                 //Set the color of the wall to be drawn.
-                SDL_SetRenderDrawColor(renderer, 0, 0, (int)round(255 * fColor), 255);
+                if (wallType == 'X')
+                    SDL_SetRenderDrawColor(renderer, (int)round(50 * fColor), (int)round(50 * fColor), (int)round(50 * fColor), 255);
+                else if (wallType == 'Y')
+                    SDL_SetRenderDrawColor(renderer, (int)round(75 * fColor), (int)round(0 * fColor), (int)round(75 * fColor), 255);
+                else if (wallType == 'Z')
+                    SDL_SetRenderDrawColor(renderer, (int)round(0 * fColor), (int)round(75 * fColor), (int)round(75 * fColor), 255);
+                else if (wallType == 'J')
+                    SDL_SetRenderDrawColor(renderer, (int)round(75 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
+                else if (wallType == 'K')
+                    SDL_SetRenderDrawColor(renderer, (int)round(75 * fColor), (int)round(0 * fColor), (int)round(0 * fColor), 255);
+                else if (wallType == 'L')
+                    SDL_SetRenderDrawColor(renderer, (int)round(150 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
+                else if (wallType == 'M')
+                    SDL_SetRenderDrawColor(renderer, (int)round(150 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
+                else if (wallType == 'N')
+                    SDL_SetRenderDrawColor(renderer, (int)round(150 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
+                else if (wallType == 'O')
+                    SDL_SetRenderDrawColor(renderer, (int)round(150 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
 
                 //Determine the height of the vertical line to be drawn.
                 float heightDraw = 1.0f * (atan(0.5f / distance) / fovRad * worldWidth * 2);
@@ -411,6 +556,59 @@ void Game::drawWalls(SDL_Renderer* renderer) {
 }
 
 
+
+void Game::addAllSpritesToDrawList(SDL_Renderer* renderer) {
+    //Add any of the needed sprites to the draw list.
+    for (std::shared_ptr<Sprite> enemy : listUnitEnemies)
+        addSpriteToDrawList(enemy);
+
+    for (std::shared_ptr<Sprite> pickup : listPickups)
+        addSpriteToDrawList(pickup);
+
+    for (std::shared_ptr<Sprite> projectile : listProjectiles)
+        addSpriteToDrawList(projectile);
+
+    addSpriteToDrawList(spriteFlag);
+}
+
+
+
+void Game::addSpriteToDrawList(std::shared_ptr<Sprite>& sprite) {
+    if (unitPlayer != nullptr && sprite != nullptr) {
+        //Check if the position of the sprite is visible.
+        //Note that this is set by the raycast function when drawWalls is called.
+        int indexCheck = (int)(sprite->getPos().x) + (int)(sprite->getPos().y) * Level::levelWidth;
+        if (indexCheck > -1 && indexCheck < Level::levelSize &&
+            listVisibleCells[indexCheck]) {
+            float distance = (unitPlayer->getPos() - sprite->getPos()).magnitude();
+            //Add the distance and sprite to the list.
+            listSpritesToDraw.push_back(std::pair<float, std::weak_ptr<Sprite>>(
+                distance, std::weak_ptr<Sprite>(sprite)));
+        }
+    }
+}
+
+
+
+void Game::sortAndDrawListSpritesToDraw(SDL_Renderer* renderer) {
+    if (listSpritesToDraw.empty() == false) {
+        //Sort the list based on the stored distances.
+        std::sort(listSpritesToDraw.begin(), listSpritesToDraw.end(),
+            [](auto a, auto b) { return (a.first < b.first); });
+
+        //Loop through the list of sprites and draw them from furthest to closest.
+        while (listSpritesToDraw.empty() == false) {
+            std::pair<float, std::weak_ptr<Sprite>> dataSelected = listSpritesToDraw.back();
+            if (auto spriteSelected = dataSelected.second.lock())
+                spriteSelected->draw(renderer, worldWidth, worldHeight, unitPlayer, fovRad, listDepthDraw);
+
+            listSpritesToDraw.pop_back();
+        }
+    }
+}
+
+
+
 void Game::drawText(SDL_Renderer* renderer, int offsetX, int offsetY, int size, std::string textToDraw) {
     if (textureFont != nullptr) {
         int cursorOffsetX = 0;
@@ -429,5 +627,24 @@ void Game::drawText(SDL_Renderer* renderer, int offsetX, int offsetY, int size, 
             //Advance the cursor.
             cursorOffsetX += 6 * size;
         }
+    }
+}
+
+
+
+void Game::addRandomPickup(SDL_Renderer* renderer, Vector2D pos) {
+    //Pick the index of a pickup to add at random.  Note if it's a value above 3 then it won't add anything.
+    int index = rand() % (3 + 7);
+
+    switch (index) {
+    case 0:
+        listPickups.push_back(std::make_shared<Health>(renderer, pos));
+        break;
+    case 1:
+        listPickups.push_back(std::make_shared<Coin>(renderer, pos));
+        break;
+    case 2:
+        listPickups.push_back(std::make_shared<Ammo>(renderer, pos));
+        break;
     }
 }

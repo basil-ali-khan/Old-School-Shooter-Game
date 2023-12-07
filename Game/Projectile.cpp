@@ -1,6 +1,6 @@
-#include "Projectile.h"
-#include "UnitEnemy.h"
-#include "game.hpp"
+#include "Projectile.hpp"
+#include "UnitEnemy.hpp"
+#include "Game.hpp"
 
 
 
@@ -37,18 +37,18 @@ void Projectile::checkCollisions(std::unique_ptr<UnitPlayer>& unitPlayer, std::v
     //Check for a collision with any of the units.
     if (collisionOccurred == false) {
         if (shotFromPlayer == false) {
-            // //Check if this overlaps unit player or not.
-            // if (unitPlayer != nullptr && unitPlayer->checkOverlap(this)) {
-            //     unitPlayer->removeHealth(damage);
-            //     collisionOccurred = true;
-            // }
+            //Check if this overlaps unit player or not.
+            if (unitPlayer != nullptr && unitPlayer->checkOverlap(this)) {
+                unitPlayer->removeHealth(damage);
+                collisionOccurred = true;
+            }
         }
         else {
             //Check if this overlaps any of the enemy units or not.
             for (int count = 0; count < listUnitEnemies.size() && collisionOccurred == false; count++) {
                 auto& unitEnemySelected = listUnitEnemies[count];
                 if (unitEnemySelected != nullptr && unitEnemySelected->checkOverlap(this)) {
-                    // unitEnemySelected->removeHealth(damage);
+                    unitEnemySelected->removeHealth(damage);
                     collisionOccurred = true;
                 }
             }

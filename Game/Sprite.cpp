@@ -1,6 +1,6 @@
-#include "Sprite.h"
-#include "UnitPlayer.h"
-#include "game.hpp"
+#include "Sprite.hpp"
+#include "UnitPlayer.hpp"
+#include "Game.hpp"
 
 
 
@@ -52,7 +52,7 @@ void Sprite::draw(SDL_Renderer* renderer, int worldWidth, int worldHeight, std::
         //The width of the vertical line on the image.
         //Note 16 - 1 because the texture's coordinates start at 0 for the first pixel not 1.
         //They go up to 15 not 16, for a total of 16 positions.
-        int widthPerLine = std::max((int)round((float)(16 - 1) / sizeDraw), 1);
+        int widthPerLine = std::max((int)round((float)(32 - 1) / sizeDraw), 1);
 
         //Draw the image on the screen vertical line by vertial line.
         int xMax = (int)round(sizeDraw);
@@ -70,10 +70,10 @@ void Sprite::draw(SDL_Renderer* renderer, int worldWidth, int worldHeight, std::
 
                     //The position of the vertical line on the image to be used for drawing.
                     SDL_Rect rectSrc = {
-                    (int)round((float)x / (xMax - 1) * (float)(16 - 1)),
+                    (int)round((float)x / (xMax - 1) * (float)(32 - 1)),
                     0,
                     widthPerLine,
-                    16 };
+                    32 };
 
                     //The position of the vertical line on the screen to be drawn.
                     SDL_Rect rectDest = {
@@ -102,4 +102,9 @@ bool Sprite::checkOverlap(Sprite* other) {
 
 Vector2D Sprite::getPos() {
     return pos;
+}
+
+
+void Sprite::setPos(Vector2D setPos) {
+    pos = setPos;
 }

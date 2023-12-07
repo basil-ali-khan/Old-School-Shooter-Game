@@ -1,14 +1,23 @@
-#include "UnitPlayer.h"
+#include "UnitPlayer.hpp"
 
 
 
 UnitPlayer::UnitPlayer(SDL_Renderer* renderer, Vector2D setPos) :
-	Unit(renderer, setPos, "", 20, Weapon(0, 4)), angle(0.0f), speedMove(7.0f), speedTurn(2.0f) {
-
+	Unit(renderer, setPos, "", 20), angle(0.0f), speedMove(7.0f), speedTurn(2.0f) {
+        Unit::weapon = new Weapon(0, 4);
 }
 
 
+
+void UnitPlayer::shootProjectile(SDL_Renderer* renderer, std::vector<std::shared_ptr<Projectile>>& listProjectiles) {
+    weapon->shootProjectile(renderer, pos, Vector2D(angle), listProjectiles, true);
+}
+
+
+
 void UnitPlayer::update(float dT) {
+    Unit::update(dT);
+
 
     //Create a vector called add that starts of as (0,0).
     Vector2D add;
@@ -76,4 +85,91 @@ void UnitPlayer::setAmountTurn(float setAmountTurn) {
 
 float UnitPlayer::getAngle() {
     return angle;
+}
+
+
+
+std::string UnitPlayer::getHealthString() {
+    if (healthCurrent == healthMax)
+        return "Max";
+    else
+        return std::to_string(healthCurrent);
+}
+
+
+bool UnitPlayer::isHealthFull() {
+    return (healthCurrent == healthMax);
+}
+
+
+void UnitPlayer::addHealth(int amount) {
+    if (amount > 0) {
+        healthCurrent += amount;
+        if (healthCurrent > healthMax)
+            healthCurrent = healthMax;
+    }
+}
+
+
+
+void UnitPlayer::addCoin() {
+    countCoins++;
+}
+
+
+int UnitPlayer::getCountCoins() {
+    return countCoins;
+}
+
+
+
+bool UnitPlayer::isAmmoFull() {
+    return weapon->isAmmoFull();
+}
+
+
+void UnitPlayer::addAmmo(int amount) {
+    weapon->addAmmo(amount);
+}
+
+
+std::string UnitPlayer::computeAmmoString() {
+    return weapon->computeAmmoString();
+}
+
+
+
+bool UnitPlayer::buyUpgradeHealthMax() {
+    int cost = 10;
+    if (countCoins >= cost) {
+        countCoins -= cost;
+        healthMax += 5;
+        return true;
+    }
+
+    return false;
+}
+
+
+bool UnitPlayer::buyUpgradeAmmoMax() {
+    int cost = 10;
+    if (countCoins >= cost) {
+        countCoins -= cost;
+        weapon->upgradeAmmoMax();
+        return true;
+    }
+
+    return false;
+}
+
+
+bool UnitPlayer::buyUpgradeWeaponSpeed() {
+    int cost = 10;
+    if (countCoins >= cost) {
+        countCoins -= cost;
+        weapon->upgradeWeaponSpeed();
+        return true;
+    }
+
+    return false;
 }

@@ -1,4 +1,4 @@
-#include "Weapon.h"
+#include "Weapon.hpp"
 
 
 bool Weapon::soundLoaded = false;
@@ -34,19 +34,19 @@ void Weapon::shootProjectile(SDL_Renderer* renderer, Vector2D start, Vector2D di
 		listProjectiles.push_back(std::make_unique<Projectile>(renderer, start, directionNormal, setShotFromPlayer));
 
 		//Play sound.
-		if (mix_ChunkWeaponShoot != nullptr) {
-			int channelSelected = Mix_PlayChannel(-1, mix_ChunkWeaponShoot, 0);
-			//If it wasn't shot from the player then adjust it's volume based on it's position and angle relative to the player.
-			if (setShotFromPlayer == false && channelSelected > -1) {
-				float fDistanceSound = sqrt(distanceSound / 50.0f);
-				if (fDistanceSound < 0.0f)
-					fDistanceSound = 0.0f;
-				if (fDistanceSound > 0.7f)
-					fDistanceSound = 0.7f;
+		// if (mix_ChunkWeaponShoot != nullptr) {
+		// 	int channelSelected = Mix_PlayChannel(-1, mix_ChunkWeaponShoot, 0);
+		// 	//If it wasn't shot from the player then adjust it's volume based on it's position and angle relative to the player.
+		// 	if (setShotFromPlayer == false && channelSelected > -1) {
+		// 		float fDistanceSound = sqrt(distanceSound / 50.0f);
+		// 		if (fDistanceSound < 0.0f)
+		// 			fDistanceSound = 0.0f;
+		// 		if (fDistanceSound > 0.7f)
+		// 			fDistanceSound = 0.7f;
 
-				Mix_SetPosition(channelSelected, (int)angleSoundDeg, (int)(fDistanceSound * 255));
-			}
-		}
+		// 		Mix_SetPosition(channelSelected, (int)angleSoundDeg, (int)(fDistanceSound * 255));
+		// 	}
+		// }
 
 		cooldownTimer.resetToMax();
 

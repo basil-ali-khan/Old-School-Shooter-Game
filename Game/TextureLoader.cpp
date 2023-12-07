@@ -1,4 +1,4 @@
-#include "TextureLoader.h"
+#include "TextureLoader.hpp"
 
 
 std::unordered_map<std::string, SDL_Texture*> TextureLoader::umapTexturesLoaded;

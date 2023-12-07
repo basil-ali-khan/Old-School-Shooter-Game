@@ -1,7 +1,11 @@
-#include <string>
-#include <vector>
-#include "SDL2.h"
+#pragma once
+#include "Pickup.hpp"
 
-using namespace std;
 
-// srcRect = {544, 413, 150, 147};
+
+class Coin : public Pickup
+{
+public:
+	Coin(SDL_Renderer* renderer, Vector2D setPos);
+	bool addPickupToPlayer(std::unique_ptr<UnitPlayer>& unitPlayer);
+};

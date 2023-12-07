@@ -1,4 +1,4 @@
-#include "MathAddon.h"
+#include "MathAddon.hpp"
 
 
 const float MathAddon::PI = 3.14159265359f;
