@@ -1,27 +1,3 @@
-<<<<<<< Updated upstream
-#pragma once
-#include "SDL2/SDL.h"
-#include "Sprite.hpp"
-#include "Weapon.hpp"
-
-
-
-class Unit : public Sprite
-{
-public:
-	Unit(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, int setHealthMax, Weapon setWeapon);
-	void update(float dT);
-	void draw(SDL_Renderer* renderer);
-	bool isAlive();
-	void removeHealth(int amount);
-
-
-protected:
-	int healthMax;
-	int healthCurrent = healthMax;
-
-	Weapon weapon;
-=======
 #pragma once
 // #include "SDL2/SDL.h"
 #include "Sprite.hpp"
@@ -55,5 +31,4 @@ protected:
 	int healthCurrent = healthMax;
 
 	Weapon* weapon;
->>>>>>> Stashed changes
 };
