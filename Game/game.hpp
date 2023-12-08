@@ -69,7 +69,8 @@ private:
 	SDL_Texture* textureScreen = nullptr,
 		* textureHeart = nullptr, * textureAmmo = nullptr, * textureCoin = nullptr,
 		* textureCrosshair = nullptr,
-		* textureFont = nullptr;
+		* textureFont = nullptr,
+		* texturePlayButton = nullptr; // for play button
 
 	std::shared_ptr<Sprite> spriteFlag;
 

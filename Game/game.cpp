@@ -21,6 +21,7 @@ Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int wind
         textureHeart = TextureLoader::loadTexture(renderer, "Heart.bmp");
         textureAmmo = TextureLoader::loadTexture(renderer, "Battery.bmp");
         textureCoin = TextureLoader::loadTexture(renderer, "Coin.bmp");
+        texturePlayButton = TextureLoader::loadTexture(renderer, "playbutton.bmp");
 
         //Load the level data.
         Vector2D posStart, posFinish;
@@ -77,6 +78,12 @@ Game::~Game() {
     }
     TextureLoader::deallocateTextures();
     // SoundLoader::deallocateSounds();
+
+    if (texturePlayButton != nullptr) {
+        SDL_DestroyTexture(texturePlayButton);
+        texturePlayButton = nullptr;
+    }
+
 }
 
 
@@ -93,9 +100,18 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
             break;
 
         case SDL_MOUSEBUTTONDOWN:
-            //If any mouse button is pressed then hide the instructions if they're visible.
             if (gameModeCurrent == Mode::instructions) {
-                gameModeCurrent = Mode::playing;
+                int mouseX, mouseY;
+                SDL_GetMouseState(&mouseX, &mouseY);
+
+                // Define the play button area
+                SDL_Rect playButtonRect = {90, 100, 59, 18};
+                // Mouse X: 555 Mouse Y: 687
+                // Mouse X: 905 Mouse Y: 796
+                if (mouseX >= 555 && mouseX <= 905 && mouseY >= 687 && mouseY <= 796) {
+                    gameModeCurrent = Mode::playing;
+                    SDL_SetRelativeMouseMode(SDL_TRUE); // Hide cursor when playing
+                }
             }
             else {
                 //Otherwise store the mouse event information.
@@ -279,7 +295,13 @@ void Game::drawOverlayInstructions(SDL_Renderer* renderer) {
     drawText(renderer, 55, 50, 1, "Move Mouse:  Turn");
     drawText(renderer, 55, 65, 1, "Left Click:  Hold to Shoot");
     drawText(renderer, 55, 80, 1, "ESC:         Quit");
-    drawText(renderer, 72, 100, 1, "-Click to Start-");
+    // drawText(renderer, 72, 100, 1, "-Click to Start-");
+
+    // Draw the play button
+    if (texturePlayButton != nullptr) {
+        SDL_Rect playButtonRect = {90, 100, 59, 18};
+        SDL_RenderCopy(renderer, texturePlayButton, NULL, &playButtonRect);
+    }
 }
 
 

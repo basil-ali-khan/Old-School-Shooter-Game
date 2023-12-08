@@ -64,7 +64,7 @@ int main(int argc, char* args[]) {
 			else {
 				//Set the mouse mode to relative to keep the mouse in the same position, deliver relative mouse 
 				//movements, and hide the cursor.
-				SDL_SetRelativeMouseMode(SDL_TRUE);
+				// SDL_SetRelativeMouseMode(SDL_TRUE);
 
 				//Ensure transparent graphics are drawn correctly.
 				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
