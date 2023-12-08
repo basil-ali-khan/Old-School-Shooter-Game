@@ -33,6 +33,9 @@ public:
 	void upgradeAmmoMax();
 	void upgradeWeaponSpeed();
 
+	void enterHighAmmoState();  // New method to activate high ammo state
+    void updateHighAmmo(float dT);  // New method to update high ammo state
+
 
 private:
 	Timer cooldownTimer;
@@ -44,4 +47,7 @@ private:
 
 	int ammo;
 	int ammoMax = 30;
+
+	bool isHighAmmo = false;  // New variable to track high ammo state
+    Timer highAmmoTimer = Timer(5.0f);  // New timer to track high ammo state
 };

@@ -16,10 +16,27 @@ roundsPerSecond(setRoundsPerSecond), cooldownTimer(setRoundsPerSecond > 0 ? (1.0
 }
 
 
+void Weapon::enterHighAmmoState() {
+    isHighAmmo = true;
+    highAmmoTimer.resetToMax();
+}
+
+void Weapon::updateHighAmmo(float dT) {
+    if (isHighAmmo) {
+        highAmmoTimer.countDown(dT);
+        if (highAmmoTimer.timeSIsZero()) {
+            isHighAmmo = false;
+			// Reset firing speed
+			cooldownTimer = Timer(roundsPerSecond > 0 ? (1.0f / roundsPerSecond) : (1.0f / 2));
+        }
+    }
+}
+
 
 void Weapon::update(float dT) {
-	//Update weapon cooldown.
-	cooldownTimer.countDown(dT * (ammo == 0 ? 0.25f : 1.0f));
+	// Triple the speed when high ammo
+	cooldownTimer.countDown(dT * (isHighAmmo ? 3.0f : 1.0f));
+    updateHighAmmo(dT);
 }
 
 
@@ -72,16 +89,10 @@ void Weapon::addAmmo(int amount) {
 
 
 std::string Weapon::computeAmmoString() {
-	if (ammo > 0) {
-		if (ammo == ammoMax)
-			return "Max";
-		else
-			return std::to_string(ammo);
+	if (isHighAmmo) {
+        return "Max";
 	}
-	else if (ammo < 0)
-		return "Inf";
-
-	return "Low";
+    return "Low";
 }
 
 

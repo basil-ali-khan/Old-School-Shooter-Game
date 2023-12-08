@@ -4,7 +4,7 @@
 
 UnitPlayer::UnitPlayer(SDL_Renderer* renderer, Vector2D setPos) :
 	Unit(renderer, setPos, "", 20), angle(0.0f), speedMove(7.0f), speedTurn(2.0f) {
-        Unit::weapon = new Weapon(0, 4);
+        Unit::weapon = new Weapon(0, 2);
 }
 
 
@@ -129,7 +129,10 @@ bool UnitPlayer::isAmmoFull() {
 
 
 void UnitPlayer::addAmmo(int amount) {
-    weapon->addAmmo(amount);
+    // weapon->addAmmo(amount);
+    if (amount > 0) {
+        weapon->enterHighAmmoState();  // Activate high ammo state
+    }
 }
 
 
