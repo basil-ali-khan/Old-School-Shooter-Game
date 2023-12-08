@@ -105,10 +105,10 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
                 SDL_GetMouseState(&mouseX, &mouseY);
 
                 // Define the play button area
-                SDL_Rect playButtonRect = {90, 100, 59, 18};
+                SDL_Rect playButtonRect = {800, 750, 300, 92};
                 // Mouse X: 555 Mouse Y: 687
                 // Mouse X: 905 Mouse Y: 796
-                if (mouseX >= 555 && mouseX <= 905 && mouseY >= 687 && mouseY <= 796) {
+                if (mouseX >= 621 && mouseX <= 833 && mouseY >= 650 && mouseY <= 708) {
                     gameModeCurrent = Mode::playing;
                     SDL_SetRelativeMouseMode(SDL_TRUE); // Hide cursor when playing
                 }
@@ -291,15 +291,15 @@ void Game::drawOverlayInstructions(SDL_Renderer* renderer) {
     SDL_RenderFillRect(renderer, &rectBackground);
 
     //Draw the text.
-    drawText(renderer, 55, 35, 1, "W, A, S, D:  Movement");
-    drawText(renderer, 55, 50, 1, "Move Mouse:  Turn");
-    drawText(renderer, 55, 65, 1, "Left Click:  Hold to Shoot");
-    drawText(renderer, 55, 80, 1, "ESC:         Quit");
+    drawText(renderer, 450, 200, 8, "W, A, S, D:  Movement");
+    drawText(renderer, 450, 320, 8, "Move Mouse:  Turn");
+    drawText(renderer, 450, 440, 8, "Left Click:  Hold to Shoot");
+    drawText(renderer, 450, 560, 8, "ESC:         Quit");
     // drawText(renderer, 72, 100, 1, "-Click to Start-");
 
     // Draw the play button
     if (texturePlayButton != nullptr) {
-        SDL_Rect playButtonRect = {90, 100, 59, 18};
+        SDL_Rect playButtonRect = {800, 750, 300, 92};
         SDL_RenderCopy(renderer, texturePlayButton, NULL, &playButtonRect);
     }
 }
@@ -309,26 +309,26 @@ void Game::drawOverlayPlaying(SDL_Renderer* renderer) {
     if (unitPlayer != nullptr) {
         //Draw a transparent black overlay that covers a bit of the bottom left of the screen.
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
-        SDL_Rect rectBackground{ 0, worldHeight - 14, 110, 14 };
+        SDL_Rect rectBackground{ 550, worldHeight - 112, 880, 112 };
         SDL_RenderFillRect(renderer, &rectBackground);
 
         //Draw the heart image and the players amount of health.
-        SDL_Rect rectHeart{ 0, worldHeight - 19, 16, 16 };
+        SDL_Rect rectHeart{ 560, worldHeight - 180, 170, 170 };
         SDL_RenderCopy(renderer, textureHeart, NULL, &rectHeart);
-        drawText(renderer, 16, worldHeight - 10, 1, unitPlayer->getHealthString());
+        drawText(renderer, 730, worldHeight - 65, 6, unitPlayer->getHealthString());
 
         //Draw the battery/ammo image and the players amount of ammo.
-        SDL_Rect rectAmmo{ 40, worldHeight - 19, 16, 16 };
+        SDL_Rect rectAmmo{ 860, worldHeight - 180, 170, 170 };
         SDL_RenderCopy(renderer, textureAmmo, NULL, &rectAmmo);
-        drawText(renderer, 54, worldHeight - 10, 1, unitPlayer->computeAmmoString());
+        drawText(renderer, 990, worldHeight - 65, 6, unitPlayer->computeAmmoString());
 
         //Draw the coin image and the players amount of coins.
-        SDL_Rect rectCoin{ 80, worldHeight - 19, 16, 16 };
+        SDL_Rect rectCoin{ 1120, worldHeight - 180, 170, 170 };
         SDL_RenderCopy(renderer, textureCoin, NULL, &rectCoin);
-        drawText(renderer, 96, worldHeight - 10, 1, std::to_string(unitPlayer->getCountCoins()));
+        drawText(renderer, 1300, worldHeight - 65, 6, std::to_string(unitPlayer->getCountCoins()));
 
         //Draw the crosshair.  Assume that it's 16x16 pixels for simplicity.
-        SDL_Rect rectCrosshair{ (worldWidth - 16) / 2, (worldHeight - 16) / 2, 16, 16 };
+        SDL_Rect rectCrosshair{ (worldWidth - 150) / 2, (worldHeight - 150) / 2, 150, 150 };
         SDL_RenderCopy(renderer, textureCrosshair, NULL, &rectCrosshair);
     }
 }
@@ -341,8 +341,8 @@ void Game::drawOverlayVictory(SDL_Renderer* renderer) {
     SDL_RenderFillRect(renderer, &rectBackground);
 
     //Draw the text.
-    drawText(renderer, 53, 53, 3, "You Won!");
-    drawText(renderer, 63, 89, 1, "-Press ESC to Quit-");
+    drawText(renderer, 730, 500, 12, "You Won!");
+    drawText(renderer, 700, 600, 6, "-Press ESC to Quit-");
 }
 
 
@@ -353,8 +353,8 @@ void Game::drawOverlayDefeat(SDL_Renderer* renderer) {
     SDL_RenderFillRect(renderer, &rectBackground);
 
     //Draw the text.
-    drawText(renderer, 44, 53, 3, "You Lost!");
-    drawText(renderer, 63, 89, 1, "-Press ESC to Quit-");
+    drawText(renderer, 730, 500, 12, "You Lost!");
+    drawText(renderer, 700, 600, 6, "-Press ESC to Quit-");
 }
 
 

@@ -65,7 +65,7 @@ private:
 
 
 
-	static const int worldWidth = 240, worldHeight = 135;
+	static const int worldWidth = 1920, worldHeight = 1080;
 	SDL_Texture* textureScreen = nullptr,
 		* textureHeart = nullptr, * textureAmmo = nullptr, * textureCoin = nullptr,
 		* textureCrosshair = nullptr,
