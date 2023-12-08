@@ -16,12 +16,10 @@ roundsPerSecond(setRoundsPerSecond), cooldownTimer(setRoundsPerSecond > 0 ? (1.0
 }
 
 
-
 void Weapon::update(float dT) {
 	//Update weapon cooldown.
 	cooldownTimer.countDown(dT * (ammo == 0 ? 0.25f : 1.0f));
 }
-
 
 
 void Weapon::shootProjectile(SDL_Renderer* renderer, Vector2D start, Vector2D directionNormal, 
@@ -53,6 +51,7 @@ void Weapon::shootProjectile(SDL_Renderer* renderer, Vector2D start, Vector2D di
 		if (ammo > 0)
 			ammo--;
 	}
+
 }
 
 

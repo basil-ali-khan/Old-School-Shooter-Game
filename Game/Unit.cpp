@@ -1,5 +1,5 @@
 #include "Unit.hpp"
-
+#include <iostream>
 
 
 Unit::Unit(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, int setHealthMax, Weapon setWeapon) :

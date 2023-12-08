@@ -2,6 +2,7 @@
 #include "Unit.hpp"
 #include "Vector2D.hpp"
 #include "MathAddon.hpp"
+#include "Weapon.hpp"
 
 
 
@@ -35,7 +36,6 @@ private:
 
 	float angle;
 	const float speedMove, speedTurn;
-
 
 	int countCoins = 0;
 

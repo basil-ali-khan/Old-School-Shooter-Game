@@ -1,12 +1,22 @@
 #include <iostream>
-#include "SDL2/SDL.h"
-#include "SDL2_mixer/SDL_mixer.h"
+// #include "SDL2/SDL.h"
+// #include "SDL2_mixer/SDL_mixer.h"
 #include "Game.hpp"
+#ifdef __has_include
+    // Check for the existence of the SDL2/SDL.h header file
+    #if __has_include("SDL2/SDL.h")
+        #include "SDL2/SDL.h"
+        #include "SDL2_mixer/SDL_mixer.h"
+    #else
+        // If the header is not found, include the alternative headers
+        #include <SDL.h>
+        #include <SDL_image.h>
+        #include <SDL_mixer.h>
+    #endif
+#endif
 
 
 bool fullscreen = true;
-
-
 
 
 int main(int argc, char* args[]) {
@@ -33,9 +43,9 @@ int main(int argc, char* args[]) {
 		//Create the window.
 		SDL_Window* window = nullptr;
 		if (fullscreen)
-			window = SDL_CreateWindow("Falling Sand Platformer Game", 0, 0, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+			window = SDL_CreateWindow("Aliens Onboard", 0, 0, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		else
-			window = SDL_CreateWindow("Falling Sand Platformer Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 540, 0);
+			window = SDL_CreateWindow("Aliens Onboard", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 540, 0);
 
 		if (window == nullptr) {
 			std::cout << "Error: Couldn't create window = " << SDL_GetError() << std::endl;
@@ -57,10 +67,10 @@ int main(int argc, char* args[]) {
 				//Ensure transparent graphics are drawn correctly.
 				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-				//Output the name of the render driver.
-				SDL_RendererInfo rendererInfo;
-				SDL_GetRendererInfo(renderer, &rendererInfo);
-				std::cout << "Renderer = " << rendererInfo.name << std::endl;
+				// //Output the name of the render driver.
+				// SDL_RendererInfo rendererInfo;
+				// SDL_GetRendererInfo(renderer, &rendererInfo);
+				// std::cout << "Renderer = " << rendererInfo.name << std::endl;
 
 				//Get the dimensions of the window.
 				int windowWidth = 0, windowHeight = 0;
