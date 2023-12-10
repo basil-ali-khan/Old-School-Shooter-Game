@@ -11,8 +11,8 @@ Ammo::Ammo(SDL_Renderer* renderer, Vector2D setPos) :
 
 
 bool Ammo::addPickupToPlayer(std::unique_ptr<UnitPlayer>& unitPlayer) {
-	if (unitPlayer != nullptr && unitPlayer->isAmmoFull() == false) {
-		unitPlayer->addAmmo(10);
+	if (unitPlayer != nullptr) { // && unitPlayer->isAmmoFull() == false) {
+		unitPlayer->addAmmo();
 		return true;
 	}
 

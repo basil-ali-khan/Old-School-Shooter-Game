@@ -5,75 +5,13 @@
 #include "UnitEnemyTank.hpp"
 #include <iostream>
 
-
-// const char* Level::levelData{
-//     "XYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXY"
-//     "XJ                                  JJJJJJJJJJJJJJJY"
-//     "YJ                                  J   K         JX"
-//     "XJ                                  J   K         JY"
-//     "YJ                                  J   K         JX"
-//     "XJ         JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ      JY"
-//     "YJ         J                               J      JX"
-//     "XJ         J        JJJJJJ JJJJJJJJJ J JJJ J      JY"
-//     "YJJJJJJJJJJJ        J    J J       J J JJJ JJJ JJJJX"
-//     "XJ         J        JJJJJJ JJJJJJJJJ J            JY"
-//     "YJJJJJJ             J                JJJJJJJJJJJJJJX"
-//     "XJ       JJJJJJ     J  JJJJJJJJJJJJJJJJJJJJJJJJJJJJY"
-//     "YJ       J             JZZZZZZZZZZZZZZZZZZZZZZZZZZZX"
-//     "XJ       J  JJJJJJ     JZ      Z  2               ZY"
-//     "YJJJJJJJJJ             JZ  2   ZZZZZZZZZZZZZZA1H AZX"
-//     "X            JJJJJ  JJJJZ         0   Z       1 1 ZY"
-//     "YJJJJJJJJJJJJJ F JJJJZZZZZZZZZZZ  0   Z A  Z   1  ZX"
-//     "XZZZZZZZZZZZZZOOZZZZZ1 0   0  Z   0  A     Z    1 ZY"
-//     "YZ2        1 1     Z111  0  0 ZZZZZZZZZZZZZZ      ZX"
-//     "XZ          1 1    ZZZZZZZ   0Z 0  0   0   A0 0   ZY"
-//     "YZZZZZZZZZZZZZ HH  Z  1Z    ZZZZZZZ  0   0  A1    ZY"
-//     "XYYYYYYYYYYYYZ AA  Z 11  A   0    A  0 H   ZZZZZZZZY"
-//     "YY1  1  1   YZ      1          0   0   H          ZY"
-//     "YYAYYYYYA 1 YZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ  Y"
-//     "YY1H1H 1  A YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYNNY"
-//     "YYH Y 1H 1 A 1CCCY 1H Y 1 H 1   Y  1CCC 1  CCCC 1Y1Y"
-//     "YY1 YYYYYYYYYYA1 Y  1 Y  1H Y 1 Y1  YYYYY 1 HY  Y  Y"
-//     "YYH1  H 1 H 1HH  Y 1A Y 1   Y 1 Y  1 H  1  HHY  Y  Y"
-//     "YYYYYYYYYYYYYY YYYYH YY 1 H YCCCYYYYYYYYYYYYYY     Y"
-//     "XXYXYXYXYXYXYYA1 A H 1CCC1H Y  1 H 1 H   A  CCCCCCCY"
-//     "YY0 H  11  1 M  A  1   YYYYYY1 H YYYYYYYYYYYYYYYYYSY"
-//     "XX Y00 1  11 M   1  1 A   1 HH 1 H 1 H   A         Y"
-//     "YYCX  Y 0    XYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYX"
-//     "XXCY  X CCC     CCC  0          0     0          0 Y"
-//     "YYCX  Y  YXYX 0  0   CCC  0  X     0       0   X   X"
-//     "XX    0 CCCCX      H   0     Y H0      0       Y   Y"
-//     "YY  0    XY YXYXXY           XXYXYXYXYXY 0   0 X000X"
-//     "XX  YXYXYXYA0    0   XYXYXYXYY    CCC      0 H Y   Y"
-//     "YY       H     0      0      X  0HA0   0     A X   X"
-//     "XXXXXXXXXXXXXXXXXXX    A  0  Y  CC   XYXYXYXYXYX   Y"
-//     "X         X 0     X  0     H X  0  0 X 0  0      0 X"
-//     "XC  0  C       0 HXX H  0 A    CCC   H         0   Y"
-//     "X         X 0     XYA0AXYXYXYXXYXYXYXYXYXYXYXYXYXYXY"
-//     "X  0 C  0 XXXXXXXXXX   CCC        HH  A            Y"
-//     "X                 XYXYXYXYXYXYXYXYLLY      0  0    X"
-//     "X  C   C   0      X              X  X    0 CCC 0   Y"
-//     "X  C0             X              X  X      0       X"
-//     "X  C    A     0   XXXXXXXXXXXXXXXX  XXXXXXXXXXXXXXXY"
-//     "X  C              X0                X     A A     XX"
-//     "XXXXXXXXX XXXXXXXXX    0      A     X   0  H  0   XY"
-//     "YXXXXXX X0X       XXX C  XX  C   0  X    0   0    XX"
-//     "X  S  XXX XXXXXXXXX   C  XX  C      X             XY"
-//     "X                     C  XX  C   XX X   XX   XX   XX"
-//     "X  A                         C   XX 0         0   XY"
-//     "X     XXXXXXXXXXXXX       A       X   H   0       XX"
-//     "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXY"
-
-
-// };
-
 const char* Level::levelData{
     "XYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXY"
     "XJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJY"
     "YJ        0         A             0 J   K11    1  JX"
     "XJ 2  3                 HHH     0HHHJF3 K111 2   1JY"
     "YJ      0   0       A             0 J   K11    1  JX"
-    "XJ    2    JJJJJJJJJJJJJS  JJJJJJJJJJJJJJJJJ 1    JY"
+    "XJ    2    JJJJJJJJJJJJJ   JJJJJJJJJJJJJJJJJ 1    JY"
     "YJ 0    0  J  0      0                     J      JX"
     "XJ    0    J      0 JJ  JJ JJJ   JJJ J JJJ J      JY"
     "YJJJJJJJJJJJ 0      J11111 J0 AHA 0J J JJJ JJJ JJJJX"
@@ -141,7 +79,7 @@ const char* Level::levelData{
     "X  C              X0                X     A A     XX"
     "XXXXXXXXX XXXXXXXXX    0      A     X   0  H  0   XY"
     "YXXXXXX X0X       XXX C  XX  C   0  X    0   0    XX"
-    "X     XXX XXXXXXXXX   C  XX  C      X             XY"
+    "X  S  XXX XXXXXXXXX   C  XX  C      X             XY"
     "X                     C  XX  C    X X   XX   XX   XX"
     "X  A     CCCC                C    X 0         0   XY"
     "X     XXXXXXXXXXXXX       A       X   H   0       XX"
@@ -153,7 +91,6 @@ const size_t Level::levelSize = strlen(levelData);
 
 int Level::area = 1;
 int Level::killCount = 0;
-// int Level::areaKillThreshold[5] = { 20, 72, 117, 30, 40 };
 int Level::areaKillThreshold[5] = { 20, 80, 130, 172, 248};
 
 /*
@@ -202,10 +139,6 @@ void Level::setupAllEnemiesAndPickups(SDL_Renderer* renderer, Vector2D& posStart
         case symbolEnemyFour:
             UnitEnemyTank::addUnitEnemyToList(renderer, pos, listUnitEnemies);
             break;
-        // case symbolEnemyFive:
-        //     UnitEnemy::addUnitEnemyToListUsingTemplate(renderer, pos, 4, listUnitEnemies);
-        //     break;
-
         case symbolHealth:
             listPickups.push_back(std::make_shared<Health>(renderer, pos));
             break;
@@ -214,16 +147,6 @@ void Level::setupAllEnemiesAndPickups(SDL_Renderer* renderer, Vector2D& posStart
             break;
         case symbolAmmo:
             listPickups.push_back(std::make_shared<Ammo>(renderer, pos));
-            break;
-
-        case symbolUpgradeHealth:
-            listPickups.push_back(std::make_shared<UpgradeHealth>(renderer, pos));
-            break;
-        case symbolUpgradeAmmo:
-            listPickups.push_back(std::make_shared<UpgradeAmmo>(renderer, pos));
-            break;
-        case symbolUpgradeWeaponSpeed:
-            listPickups.push_back(std::make_shared<UpgradeWeaponSpeed>(renderer, pos));
             break;
         }
     }

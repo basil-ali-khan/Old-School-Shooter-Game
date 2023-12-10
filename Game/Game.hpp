@@ -64,6 +64,7 @@ private:
 	void sortAndDrawListSpritesToDraw(SDL_Renderer* renderer);
 	void drawText(SDL_Renderer* renderer, int offsetX, int offsetY, int size, std::string textToDraw);
 	void addRandomPickup(SDL_Renderer* renderer, Vector2D pos);
+	void drawRedOverlay(SDL_Renderer* renderer);
 
 
 
@@ -97,4 +98,6 @@ private:
 
 	int mouseXLast = 0;
 	bool mouseXLastSet = false;
+
+	int moveToNextLevelMessageTimer = 0;
 };

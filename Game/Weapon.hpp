@@ -2,7 +2,7 @@
 #include <vector>
 #include <memory>
 // #include "SDL2_mixer/SDL_mixer.h"
-// #include "SoundLoader.hpp"
+#include "SoundLoader.hpp"
 #include "Projectile.hpp"
 #include "Timer.hpp"
 #ifdef __has_include
@@ -22,16 +22,12 @@
 class Weapon
 {
 public:
-	Weapon(int setAmmo, int roundsPerSecond, int setDamage, float setProjectileSpeed, std::string setFilenameProjectile);
+	Weapon(int roundsPerSecond, int setDamage, float setProjectileSpeed, std::string setFilenameProjectile);
 	void update(float dT);
 	void shootProjectile(SDL_Renderer* renderer, Vector2D start, Vector2D directionNormal, 
 		std::vector<std::shared_ptr<Projectile>>& listProjectiles, bool setShotFromPlayer, 
 		float angleSoundDeg = 0.0f, float distanceSound = 1.0f);
-	bool isAmmoFull();
-	void addAmmo(int amount);
 	std::string computeAmmoString();
-	void upgradeAmmoMax();
-	void upgradeWeaponSpeed();
 
 	void enterHighAmmoState();  // New method to activate high ammo state
     void updateHighAmmo(float dT);  // New method to update high ammo state
@@ -48,9 +44,7 @@ private:
 	int damage;
 	float projectileSpeed;
 	std::string filenameProjectile;
-	int ammo;
-	int ammoMax = 30;
 
-	bool isHighAmmo = false;  // New variable to track high ammo state
-    Timer highAmmoTimer = Timer(5.0f);  // New timer to track high ammo state
+	bool isHighAmmo;  // New variable to track high ammo state
+    Timer highAmmoTimer; // New timer to track high ammo state
 };

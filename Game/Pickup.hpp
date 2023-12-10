@@ -1,5 +1,5 @@
 #pragma once
-// #include "SoundLoader.hpp"
+#include "SoundLoader.hpp"
 #include "Sprite.hpp"
 
 
@@ -21,5 +21,5 @@ private:
 	const bool consumable;
 	bool consumed = false, justOverlaped = false;
 
-	// Mix_Chunk* mix_ChunkPickup = nullptr;
+	Mix_Chunk* mix_ChunkPickup = nullptr;
 };

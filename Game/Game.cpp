@@ -75,7 +75,7 @@ Game::~Game() {
         textureScreen = nullptr;
     }
     TextureLoader::deallocateTextures();
-    // SoundLoader::deallocateSounds();
+    SoundLoader::deallocateSounds();
 
     if (texturePlayButton != nullptr) {
         SDL_DestroyTexture(texturePlayButton);
@@ -202,6 +202,17 @@ void Game::update(float dT, SDL_Renderer* renderer) {
     if (Level::killCount == Level::areaKillThreshold[Level::area-1]) {
         Level::incrementArea();
         levelIncrementOverlayTimer = 180;
+        moveToNextLevelMessageTimer = 480; // Set timer for 5 seconds (assuming 60 FPS)
+    }
+
+    if (moveToNextLevelMessageTimer > 0) {
+        moveToNextLevelMessageTimer--;
+    }
+
+    if (spriteFlag != nullptr && spriteFlag->checkOverlap(unitPlayer.get())) {
+        gameModeCurrent = Mode::victory;
+        Level::incrementArea();
+        moveToNextLevelMessageTimer = 0; // Reset message timer
     }
 
     //Update the pickups.
@@ -266,14 +277,15 @@ void Game::draw(SDL_Renderer* renderer, std::string framerate) {
         break;
     }
 
-    //Draw the framerate
-    //drawText(renderer, 2, 2, 1, framerate);
-
     //Set the render target back to the window.
     SDL_SetRenderTarget(renderer, NULL);
     //Draw the texture.
     SDL_RenderCopy(renderer, textureScreen, NULL, NULL);
 
+    // Draw red overlay if player was recently hit - make sure this is after all other rendering calls
+    if (unitPlayer != nullptr && unitPlayer->wasRecentlyHit()) {
+        drawRedOverlay(renderer);
+    }
 
     //Send the image to the window.
     SDL_RenderPresent(renderer);
@@ -345,6 +357,18 @@ void Game::drawOverlayPlaying(SDL_Renderer* renderer) {
         //Draw the crosshair.  Assume that it's 16x16 pixels for simplicity.
         SDL_Rect rectCrosshair{ (worldWidth - 150) / 2, (worldHeight - 150) / 2, 150, 150 };
         SDL_RenderCopy(renderer, textureCrosshair, NULL, &rectCrosshair);
+
+        // Draw "Enemies Remaining" or "Move To The Next Level" message
+        std::string message;
+        if (moveToNextLevelMessageTimer > 0) {
+            message = "Move To The Next Level";
+        }
+        else {
+            int enemiesRemaining = Level::areaKillThreshold[Level::area-1] - Level::killCount;
+            message = "Enemies Remaining: " + std::to_string(enemiesRemaining);
+        }
+
+        drawText(renderer, 10, 10, 4, message);
     }
 }
 
@@ -666,4 +690,10 @@ void Game::addRandomPickup(SDL_Renderer* renderer, Vector2D pos) {
         listPickups.push_back(std::make_shared<Ammo>(renderer, pos));
         break;
     }
+}
+
+void Game::drawRedOverlay(SDL_Renderer* renderer) {
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 128); // Semi-transparent red
+    SDL_Rect rectBackground{ 0, 0, worldWidth, worldHeight };
+    SDL_RenderFillRect(renderer, &rectBackground);
 }

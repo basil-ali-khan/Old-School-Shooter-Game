@@ -3,7 +3,7 @@
 
 
 UnitPlayer::UnitPlayer(SDL_Renderer* renderer, Vector2D setPos) :
-	Unit(renderer, setPos, "", 40, Weapon(0,8,1,20,"Orb Green.bmp")), angle(0.0f), speedMove(7.0f), speedTurn(2.0f)  {
+	Unit(renderer, setPos, "", 50, Weapon(8, 1, 20, "Orb Green.bmp")), angle(0.0f), speedMove(7.0f), speedTurn(2.0f), hitTimer(0.2f)  {
 }
 
 
@@ -16,6 +16,7 @@ void UnitPlayer::shootProjectile(SDL_Renderer* renderer, std::vector<std::shared
 
 void UnitPlayer::update(float dT) {
     Unit::update(dT);
+    hitTimer.countDown(dT);
 
 
     //Create a vector called add that starts of as (0,0).
@@ -109,6 +110,13 @@ void UnitPlayer::addHealth(int amount) {
     }
 }
 
+void UnitPlayer::removeHealth(int damage) {
+    Unit::removeHealth(damage);
+    
+    if (damage > 0)
+        hitTimer.resetToMax();
+}
+
 
 
 void UnitPlayer::addCoin() {
@@ -121,17 +129,8 @@ int UnitPlayer::getCountCoins() {
 }
 
 
-
-bool UnitPlayer::isAmmoFull() {
-    return weapon.isAmmoFull();
-}
-
-
-void UnitPlayer::addAmmo(int amount) {
-    // weapon->addAmmo(amount);
-    if (amount > 0) {
-        weapon.enterHighAmmoState();  // Activate high ammo state
-    }
+void UnitPlayer::addAmmo() {
+    weapon.enterHighAmmoState();  // Activate high ammo state
 }
 
 
@@ -140,38 +139,6 @@ std::string UnitPlayer::computeAmmoString() {
 }
 
 
-
-bool UnitPlayer::buyUpgradeHealthMax() {
-    int cost = 10;
-    if (countCoins >= cost) {
-        countCoins -= cost;
-        healthMax += 5;
-        return true;
-    }
-
-    return false;
-}
-
-
-bool UnitPlayer::buyUpgradeAmmoMax() {
-    int cost = 10;
-    if (countCoins >= cost) {
-        countCoins -= cost;
-        weapon.upgradeAmmoMax();
-        return true;
-    }
-
-    return false;
-}
-
-
-bool UnitPlayer::buyUpgradeWeaponSpeed() {
-    int cost = 10;
-    if (countCoins >= cost) {
-        countCoins -= cost;
-        weapon.upgradeWeaponSpeed();
-        return true;
-    }
-
-    return false;
+bool UnitPlayer::wasRecentlyHit() {
+    return !hitTimer.timeSIsZero();
 }

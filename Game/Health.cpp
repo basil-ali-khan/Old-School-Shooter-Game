@@ -12,7 +12,7 @@ Health::Health(SDL_Renderer* renderer, Vector2D setPos) :
 
 bool Health::addPickupToPlayer(std::unique_ptr<UnitPlayer>& unitPlayer) {
 	if (unitPlayer != nullptr && unitPlayer->isHealthFull() == false) {
-		unitPlayer->addHealth(5);
+		unitPlayer->addHealth(10);
 		return true;
 	}
 

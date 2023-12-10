@@ -3,6 +3,7 @@
 #include "Vector2D.hpp"
 #include "MathAddon.hpp"
 #include "Weapon.hpp"
+#include "Timer.hpp"
 
 
 
@@ -19,16 +20,15 @@ public:
 	std::string getHealthString();
 	bool isHealthFull();
 	void addHealth(int amount);
+	void removeHealth(int amount);
 	void addCoin();
 	int getCountCoins();
-	bool isAmmoFull();
-	void addAmmo(int amount);
+	// bool isAmmoFull();
+	void addAmmo();
 	std::string computeAmmoString();
 
-	bool buyUpgradeHealthMax();
-	bool buyUpgradeAmmoMax();
-	bool buyUpgradeWeaponSpeed();
-
+	bool wasRecentlyHit();
+	Timer hitTimer;
 
 private:
 	int directionForward = 0, directionRight = 0;
@@ -38,6 +38,4 @@ private:
 	const float speedMove, speedTurn;
 
 	int countCoins = 0;
-
-	int countHealthMaxUpgrades = 0, countAmmoMaxUpgrades = 0, countWeaponSpeedUpgrades = 0;
 };

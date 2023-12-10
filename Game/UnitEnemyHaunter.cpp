@@ -1,7 +1,7 @@
 #include "UnitEnemyHaunter.hpp"
 #include "Game.hpp"
 
-UnitEnemyHaunter::UnitEnemyHaunter(SDL_Renderer* renderer, Vector2D setPos) :  UnitEnemy(renderer, setPos, "UnitEnemyHaunterAsleep.bmp", 10, 8, true, Weapon(-1, 8, 2, 20, "Orb Purple.bmp")) {
+UnitEnemyHaunter::UnitEnemyHaunter(SDL_Renderer* renderer, Vector2D setPos) :  UnitEnemy(renderer, setPos, "UnitEnemyHaunterAsleep.bmp", 10, 8, true, Weapon(8, 2, 20, "Orb Purple.bmp")) {
 
 }
 
@@ -57,8 +57,4 @@ void UnitEnemyHaunter::update(float dT, SDL_Renderer* renderer, Game& game, std:
 			setPos(newPos);
 		}
 	}
-
-
-
 }
-

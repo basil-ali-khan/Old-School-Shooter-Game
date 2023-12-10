@@ -1,7 +1,7 @@
 #include "UnitEnemyTank.hpp"
 #include "Game.hpp"
 
-UnitEnemyTank::UnitEnemyTank(SDL_Renderer* renderer, Vector2D setPos) :  UnitEnemy(renderer, setPos, "UnitEnemyTankTogether.bmp", 25, 1, true, Weapon(-1, 10, 10, 10.0f, "Orb Blue.bmp")) {
+UnitEnemyTank::UnitEnemyTank(SDL_Renderer* renderer, Vector2D setPos) :  UnitEnemy(renderer, setPos, "UnitEnemyTankTogether.bmp", 25, 1, true, Weapon(10, 10, 10.0f, "Orb Blue.bmp")) {
 
 }
 

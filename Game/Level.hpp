@@ -8,9 +8,6 @@
 #include "Health.hpp"
 #include "Coin.hpp"
 #include "Ammo.hpp"
-#include "UpgradeHealth.hpp"
-#include "UpgradeAmmo.hpp"
-#include "UpgradeWeaponSpeed.hpp"
 #ifdef __has_include
     // Check for the existence of the SDL2/SDL.h header file
     #if __has_include("SDL2/SDL.h")
@@ -62,10 +59,6 @@ public:
 	static const char symbolHealth = 'H';
 	static const char symbolCoin = 'C';
 	static const char symbolAmmo = 'A';
-
-	static const char symbolUpgradeHealth = 'h';
-	static const char symbolUpgradeAmmo = 'a';
-	static const char symbolUpgradeWeaponSpeed = 'w';
 
 	static const char symbolStart = 'S';
 	static const char symbolFinish = 'F';
