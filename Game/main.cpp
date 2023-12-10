@@ -19,6 +19,8 @@
 bool fullscreen = true;
 
 
+
+
 int main(int argc, char* args[]) {
 	//Seed the random number generator with the current time so that it will generate different numbers every time the game is run.
 	srand((unsigned)time(NULL));
@@ -45,7 +47,7 @@ int main(int argc, char* args[]) {
 		if (fullscreen)
 			window = SDL_CreateWindow("Aliens Onboard", 0, 0, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
 		else
-			window = SDL_CreateWindow("Aliens Onboard", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 540, 0);
+			window = SDL_CreateWindow("Falling Sand Platformer Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 540, 0);
 
 		if (window == nullptr) {
 			std::cout << "Error: Couldn't create window = " << SDL_GetError() << std::endl;
@@ -62,7 +64,7 @@ int main(int argc, char* args[]) {
 			else {
 				//Set the mouse mode to relative to keep the mouse in the same position, deliver relative mouse 
 				//movements, and hide the cursor.
-				SDL_SetRelativeMouseMode(SDL_TRUE);
+				// SDL_SetRelativeMouseMode(SDL_TRUE);
 
 				//Ensure transparent graphics are drawn correctly.
 				SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);

@@ -128,7 +128,10 @@ bool UnitPlayer::isAmmoFull() {
 
 
 void UnitPlayer::addAmmo(int amount) {
-    weapon.addAmmo(amount);
+    // weapon->addAmmo(amount);
+    if (amount > 0) {
+        weapon.enterHighAmmoState();  // Activate high ammo state
+    }
 }
 
 

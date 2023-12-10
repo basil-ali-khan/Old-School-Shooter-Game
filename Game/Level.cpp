@@ -215,7 +215,25 @@ void Level::setupAllEnemiesAndPickups(SDL_Renderer* renderer, Vector2D& posStart
         case symbolAmmo:
             listPickups.push_back(std::make_shared<Ammo>(renderer, pos));
             break;
+        case symbolHealth:
+            listPickups.push_back(std::make_shared<Health>(renderer, pos));
+            break;
+        case symbolCoin:
+            listPickups.push_back(std::make_shared<Coin>(renderer, pos));
+            break;
+        case symbolAmmo:
+            listPickups.push_back(std::make_shared<Ammo>(renderer, pos));
+            break;
 
+        case symbolUpgradeHealth:
+            listPickups.push_back(std::make_shared<UpgradeHealth>(renderer, pos));
+            break;
+        case symbolUpgradeAmmo:
+            listPickups.push_back(std::make_shared<UpgradeAmmo>(renderer, pos));
+            break;
+        case symbolUpgradeWeaponSpeed:
+            listPickups.push_back(std::make_shared<UpgradeWeaponSpeed>(renderer, pos));
+            break;
         case symbolUpgradeHealth:
             listPickups.push_back(std::make_shared<UpgradeHealth>(renderer, pos));
             break;

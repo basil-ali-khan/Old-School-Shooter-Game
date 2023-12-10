@@ -1,8 +1,10 @@
 #include "Game.hpp"
-#include "UnitEnemyMinor.hpp"
-#include <iostream>
+
 
 const float Game::fovRad = MathAddon::angleDegToRad(60.0f);
+
+
+
 
 Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int windowHeight) :
     gameModeCurrent(Mode::instructions) {
@@ -19,6 +21,7 @@ Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int wind
         textureHeart = TextureLoader::loadTexture(renderer, "Heart.bmp");
         textureAmmo = TextureLoader::loadTexture(renderer, "Battery.bmp");
         textureCoin = TextureLoader::loadTexture(renderer, "Coin.bmp");
+        texturePlayButton = TextureLoader::loadTexture(renderer, "playbutton.bmp");
 
         //Load the level data.
         Vector2D posStart, posFinish;
@@ -54,8 +57,9 @@ Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int wind
                 processEvents(running, renderer, window, windowWidth, windowHeight);
 
                 //Update.  Only do so if the game mode is playing.
-                if (gameModeCurrent == Mode::playing) 
+                if (gameModeCurrent == Mode::playing)
                     update(timeDeltaFloat, renderer);
+
                 //Draw.
                 std::string framerate = (timeDeltaFloat > 0.0f ? std::to_string((int)round(1.0f / timeDeltaFloat)) : "Inf");
                 draw(renderer, framerate);
@@ -74,6 +78,12 @@ Game::~Game() {
     }
     TextureLoader::deallocateTextures();
     // SoundLoader::deallocateSounds();
+
+    if (texturePlayButton != nullptr) {
+        SDL_DestroyTexture(texturePlayButton);
+        texturePlayButton = nullptr;
+    }
+
 }
 
 
@@ -90,9 +100,18 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
             break;
 
         case SDL_MOUSEBUTTONDOWN:
-            //If any mouse button is pressed then hide the instructions if they're visible.
             if (gameModeCurrent == Mode::instructions) {
-                gameModeCurrent = Mode::playing;
+                int mouseX, mouseY;
+                SDL_GetMouseState(&mouseX, &mouseY);
+
+                // Define the play button area
+                SDL_Rect playButtonRect = {800, 750, 300, 92};
+                // Mouse X: 555 Mouse Y: 687
+                // Mouse X: 905 Mouse Y: 796
+                if (mouseX >= 621 && mouseX <= 833 && mouseY >= 650 && mouseY <= 708) {
+                    gameModeCurrent = Mode::playing;
+                    SDL_SetRelativeMouseMode(SDL_TRUE); // Hide cursor when playing
+                }
             }
             else {
                 //Otherwise store the mouse event information.
@@ -125,7 +144,7 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
 
     if (unitPlayer != nullptr && gameModeCurrent == Mode::playing) {
         //A more responsive/faster way to check keypresses for the unit movement.
-        const Uint8* keyboardState = SDL_GetKeyboardState(NULL); // an array of the states of all keys
+        const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
         //Make the unit move if needed.
         if (keyboardState[SDL_SCANCODE_A])
             unitPlayer->setDirectionRight(-1);
@@ -136,7 +155,7 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
         if (keyboardState[SDL_SCANCODE_S])
             unitPlayer->setDirectionForward(-1);
 
-        // Make the unit turn if needed.
+        //Make the unit turn if needed.
         if (mouseXOffset != 0)
             unitPlayer->setAmountTurn((float)mouseXOffset / windowWidth);
 
@@ -149,7 +168,6 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
 
 
 void Game::update(float dT, SDL_Renderer* renderer) {
-    
     //Update.
     if (unitPlayer != nullptr) {
         unitPlayer->update(dT);
@@ -168,24 +186,10 @@ void Game::update(float dT, SDL_Renderer* renderer) {
                 if (unitEnemySelected->getHasChanceToDropPickup())
                     addRandomPickup(renderer, unitEnemySelected->getPos());
 
-                // if EnemyTank, spawn 3 EnemyMinor units
-                if (unitEnemySelected->getIsTank()) {
-                    Vector2D pos = unitEnemySelected->getPos();
-                    listUnitEnemies.push_back(std::make_shared<UnitEnemyMinor>(renderer, Vector2D(pos.x + 0.5f, pos.y + 0.5f), 2));
-                    listUnitEnemies.push_back(std::make_shared<UnitEnemyMinor>(renderer, Vector2D(pos.x + 0.5f, pos.y - 0.5f), 2));
-                    listUnitEnemies.push_back(std::make_shared<UnitEnemyMinor>(renderer, Vector2D(pos.x - 0.5f, pos.y + 0.5f), 2));
-                }
                 listUnitEnemies.erase(listUnitEnemies.begin() + count);
                 count--;
-                Level::incrementKillCount();
             }
         }
-    }
-
-    // if killCount at area threshold, increment area
-    if (Level::killCount == Level::areaKillThreshold[Level::area-1]) {
-        Level::incrementArea();
-        levelIncrementOverlayTimer = 180;
     }
 
     //Update the pickups.
@@ -237,10 +241,6 @@ void Game::draw(SDL_Renderer* renderer, std::string framerate) {
         break;
     case Mode::playing:
         drawOverlayPlaying(renderer);
-        if (levelIncrementOverlayTimer > 0) {
-            levelIncrementOverlayTimer--;
-            drawOverlayLevelIncrement(renderer);
-        }
         break;
     case Mode::victory:
         drawOverlayVictory(renderer);
@@ -250,8 +250,9 @@ void Game::draw(SDL_Renderer* renderer, std::string framerate) {
         break;
     }
 
-    // Draw the framerate
-    // drawText(renderer, 2, 2, 1, framerate);
+    //Draw the framerate
+    //drawText(renderer, 2, 2, 1, framerate);
+
 
     //Set the render target back to the window.
     SDL_SetRenderTarget(renderer, NULL);
@@ -277,7 +278,7 @@ void Game::drawWorld(SDL_Renderer* renderer) {
     drawWalls(renderer);
     addAllSpritesToDrawList(renderer);
     //Draw a number on the screen for the number of sprites that need to be drawn.
-    // drawText(renderer, 2, 14, 1, std::to_string(listSpritesToDraw.size()));
+    //drawText(renderer, 2, 14, 1, std::to_string(listSpritesToDraw.size()));
     sortAndDrawListSpritesToDraw(renderer);
 }
 
@@ -290,16 +291,17 @@ void Game::drawOverlayInstructions(SDL_Renderer* renderer) {
     SDL_RenderFillRect(renderer, &rectBackground);
 
     //Draw the text.
-    drawText(renderer, 55, 35, 1, "W, A, S, D:  Movement");
-    drawText(renderer, 55, 50, 1, "Move Mouse:  Turn");
-    drawText(renderer, 55, 65, 1, "Left Click:  Hold to Shoot");
-    drawText(renderer, 55, 80, 1, "ESC:         Quit");
-    drawText(renderer, 72, 100, 1, "-Click to Start-");
-    // drawText(renderer, 440, 280 + 0*(15*5), 5, "W, A, S, D:  Movement");
-    // drawText(renderer, 440, 280 + 1*(15*5), 5, "Move Mouse:  Turn");
-    // drawText(renderer, 440, 280 + 2*(15*5), 5, "Left Click:  Hold to Shoot");
-    // drawText(renderer, 440, 280 + 3*(15*5), 5, "ESC:         Quit");
-    // drawText(renderer, 776, 280 + 4*(15*5), 5, "-Click to Start-");
+    drawText(renderer, 450, 200, 8, "W, A, S, D:  Movement");
+    drawText(renderer, 450, 320, 8, "Move Mouse:  Turn");
+    drawText(renderer, 450, 440, 8, "Left Click:  Hold to Shoot");
+    drawText(renderer, 450, 560, 8, "ESC:         Quit");
+    // drawText(renderer, 72, 100, 1, "-Click to Start-");
+
+    // Draw the play button
+    if (texturePlayButton != nullptr) {
+        SDL_Rect playButtonRect = {800, 750, 300, 92};
+        SDL_RenderCopy(renderer, texturePlayButton, NULL, &playButtonRect);
+    }
 }
 
 
@@ -307,40 +309,28 @@ void Game::drawOverlayPlaying(SDL_Renderer* renderer) {
     if (unitPlayer != nullptr) {
         //Draw a transparent black overlay that covers a bit of the bottom left of the screen.
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
-        SDL_Rect rectBackground{ 0, worldHeight - 14, 110, 14 };
+        SDL_Rect rectBackground{ 550, worldHeight - 112, 880, 112 };
         SDL_RenderFillRect(renderer, &rectBackground);
 
         //Draw the heart image and the players amount of health.
-        SDL_Rect rectHeart{ 0, worldHeight - 19, 16, 16 };
+        SDL_Rect rectHeart{ 560, worldHeight - 180, 170, 170 };
         SDL_RenderCopy(renderer, textureHeart, NULL, &rectHeart);
-        drawText(renderer, 16, worldHeight - 10, 1, unitPlayer->getHealthString());
+        drawText(renderer, 730, worldHeight - 65, 6, unitPlayer->getHealthString());
 
         //Draw the battery/ammo image and the players amount of ammo.
-        SDL_Rect rectAmmo{ 40, worldHeight - 19, 16, 16 };
+        SDL_Rect rectAmmo{ 860, worldHeight - 180, 170, 170 };
         SDL_RenderCopy(renderer, textureAmmo, NULL, &rectAmmo);
-        drawText(renderer, 54, worldHeight - 10, 1, unitPlayer->computeAmmoString());
+        drawText(renderer, 990, worldHeight - 65, 6, unitPlayer->computeAmmoString());
 
         //Draw the coin image and the players amount of coins.
-        SDL_Rect rectCoin{ 80, worldHeight - 19, 16, 16 };
+        SDL_Rect rectCoin{ 1120, worldHeight - 180, 170, 170 };
         SDL_RenderCopy(renderer, textureCoin, NULL, &rectCoin);
-        drawText(renderer, 96, worldHeight - 10, 1, std::to_string(unitPlayer->getCountCoins()));
+        drawText(renderer, 1300, worldHeight - 65, 6, std::to_string(unitPlayer->getCountCoins()));
 
         //Draw the crosshair.  Assume that it's 16x16 pixels for simplicity.
-        SDL_Rect rectCrosshair{ (worldWidth - 16) / 2, (worldHeight - 16) / 2, 16, 16 };
+        SDL_Rect rectCrosshair{ (worldWidth - 150) / 2, (worldHeight - 150) / 2, 150, 150 };
         SDL_RenderCopy(renderer, textureCrosshair, NULL, &rectCrosshair);
     }
-}
-
-void Game::drawOverlayLevelIncrement(SDL_Renderer* renderer) {
-    //Draw some text in the upper half of the screen that says level has been incremented
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
-    SDL_Rect rectBackground{ 0,0, worldWidth, worldHeight / 5 };
-    SDL_RenderFillRect(renderer, &rectBackground);
-
-    if (Level::area <= 4)
-        drawText(renderer, 625, 50, 8, "Level Incremented");
-    else 
-        drawText(renderer, 625, 50, 8, "Exit Revealed");
 }
 
 
@@ -351,8 +341,8 @@ void Game::drawOverlayVictory(SDL_Renderer* renderer) {
     SDL_RenderFillRect(renderer, &rectBackground);
 
     //Draw the text.
-    drawText(renderer, 53, 53, 3, "You Won!");
-    drawText(renderer, 63, 89, 1, "-Press ESC to Quit-");
+    drawText(renderer, 730, 500, 12, "You Won!");
+    drawText(renderer, 700, 600, 6, "-Press ESC to Quit-");
 }
 
 
@@ -363,13 +353,13 @@ void Game::drawOverlayDefeat(SDL_Renderer* renderer) {
     SDL_RenderFillRect(renderer, &rectBackground);
 
     //Draw the text.
-    drawText(renderer, 44, 53, 3, "You Lost!");
-    drawText(renderer, 63, 89, 1, "-Press ESC to Quit-");
+    drawText(renderer, 730, 500, 12, "You Lost!");
+    drawText(renderer, 700, 600, 6, "-Press ESC to Quit-");
 }
 
 
 
-std::tuple<float,float, char> Game::raycast(Vector2D posStart, Vector2D normal, bool findWallFPlayerT) {
+std::pair<float,float> Game::raycast(Vector2D posStart, Vector2D normal, bool findWallFPlayerT) {
     //Start at the start position and move cell by cell on the level in the direction of the input normal.
     //If findWall then find the distance of the closest wall in the specified direction.
     //Otherwise check if the player is found before a wall (basically is the player visible from posStart or not).
@@ -455,46 +445,22 @@ std::tuple<float,float, char> Game::raycast(Vector2D posStart, Vector2D normal, 
         if (indexCheck > -1 && indexCheck < Level::levelSize) {
             //Check if looking for a wall or the player
             if (findWallFPlayerT == false) {
-                if (Level::levelData[indexCheck] == Level::symbolXWall)
+                if (Level::levelData[indexCheck] == Level::symbolWall)
                     //A wall was found so output it's distance and fColor.
-                    return std::tuple<float, float, char>(distance, fColor, 'X');
-                else if (Level::levelData[indexCheck] == Level::symbolYWall)
-                    //A wall was found so output it's distance and fColor.
-                    return std::tuple<float, float, char>(distance, fColor, 'Y');
-                else if (Level::levelData[indexCheck] == Level::symbolZWall)
-                    //A wall was found so output it's distance and fColor.
-                    return std::tuple<float, float, char>(distance, fColor, 'Z');
-                else if (Level::levelData[indexCheck] == Level::symbolJWall)
-                    //A wall was found so output it's distance and fColor.
-                    return std::tuple<float, float, char>(distance, fColor, 'J');
-                else if (Level::levelData[indexCheck] == Level::symbolKWall)
-                    //A wall was found so output it's distance and fColor.
-                    return std::tuple<float, float, char>(distance, fColor, 'K');
-                else if (Level::levelData[indexCheck] == Level::symbolDoorOne and Level::area == 1)
-                    //A wall was found so output it's distance and fColor.
-                    return std::tuple<float, float, char>(distance, fColor, 'L');
-                else if (Level::levelData[indexCheck] == Level::symbolDoorTwo and Level::area == 2)
-                    //A wall was found so output it's distance and fColor.
-                    return std::tuple<float, float, char>(distance, fColor, 'M');
-                else if (Level::levelData[indexCheck] == Level::symbolDoorThree and Level::area == 3)
-                    //A wall was found so output it's distance and fColor.
-                    return std::tuple<float, float, char>(distance, fColor, 'N');
-                else if (Level::levelData[indexCheck] == Level::symbolDoorFour and Level::area == 4)
-                    //A wall was found so output it's distance and fColor.
-                    return std::tuple<float, float, char>(distance, fColor, 'O');
+                    return std::pair<float, float>(distance, fColor);
                 else
                     //No wall was found so ensure that the cell on listVisibleCells is set to true.
                     if (listVisibleCells[indexCheck] == false)
                         listVisibleCells[indexCheck] = true;
             }
             else {
-                if (Level::levelData[indexCheck] == Level::symbolXWall or Level::levelData[indexCheck] == Level::symbolYWall or Level::levelData[indexCheck] == Level::symbolZWall or Level::levelData[indexCheck] == Level::symbolJWall or Level::levelData[indexCheck] == Level::symbolKWall or (Level::area == 1 and Level::levelData[indexCheck] == Level::symbolDoorOne) or (Level::area == 2 and Level::levelData[indexCheck] == Level::symbolDoorTwo) or (Level::area == 3 and Level::levelData[indexCheck] == Level::symbolDoorThree) or (Level::area == 4 and Level::levelData[indexCheck] == Level::symbolDoorFour))
+                if (Level::levelData[indexCheck] == Level::symbolWall)
                     //A wall was found before the player so stop checking.
                     checking = false;
                 else if (unitPlayer != nullptr && iPosCheckX == (int)unitPlayer->getPos().x && 
                     iPosCheckY == (int)unitPlayer->getPos().y)
                     //No wall was found but the player was so output it's distance and a dummy fColor.
-                    return std::tuple<float, float, char>(distance, 1.0f, '_');
+                    return std::pair<float, float>(distance, 1.0f);
             }
         }
         else
@@ -503,7 +469,7 @@ std::tuple<float,float, char> Game::raycast(Vector2D posStart, Vector2D normal, 
     }
 
     //Nothing was found so output a negative distance and fColor as 1.0f.
-    return std::tuple<float, float, char>(-0.001f, 1.0f, '_');
+    return std::pair<float, float>(-0.001f, 1.0f);
 }
 
 
@@ -520,24 +486,14 @@ void Game::drawWalls(SDL_Renderer* renderer) {
             const float angleCurrent = unitPlayer->getAngle() + angleOffset;
 
             //Perform a raycast in the direction of the current vertical line to determine how far away it is.
-            std::tuple<float, float, char> raycastData = raycast(unitPlayer->getPos(), Vector2D(angleCurrent), false);
-            float distance = std::get<0>(raycastData);
-            float fColor = std::get<1>(raycastData);
-            char wallType = std::get<2>(raycastData);
+            std::pair<float, float> raycastData = raycast(unitPlayer->getPos(), Vector2D(angleCurrent), false);
+            float distance = raycastData.first;
+            float fColor = raycastData.second;
 
             //Ensure that there wasn't an error eg. the player is somehow out of bounds of the world.
             if (distance > 0.0f) {
                 //Set the color of the wall to be drawn.
-                if (wallType == 'X')
-                    SDL_SetRenderDrawColor(renderer, (int)round(50 * fColor), (int)round(50 * fColor), (int)round(50 * fColor), 255);
-                else if (wallType == 'Y')
-                    SDL_SetRenderDrawColor(renderer, (int)round(0 * fColor), (int)round(75 * fColor), (int)round(75 * fColor), 255);
-                else if (wallType == 'Z')
-                    SDL_SetRenderDrawColor(renderer, (int)round(85 * fColor), (int)round(30 * fColor), (int)round(30 * fColor), 255);
-                else if (wallType == 'J')
-                    SDL_SetRenderDrawColor(renderer, (int)round(75 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
-                else if (wallType == 'L' or wallType == 'M' or wallType == 'N' or wallType == 'O' or wallType == 'K')
-                    SDL_SetRenderDrawColor(renderer, (int)round(150 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
+                SDL_SetRenderDrawColor(renderer, (int)round(50 * fColor), (int)round(50 * fColor), (int)round(50 * fColor), 255);
 
                 //Determine the height of the vertical line to be drawn.
                 float heightDraw = 1.0f * (atan(0.5f / distance) / fovRad * worldWidth * 2);
@@ -637,6 +593,7 @@ void Game::drawText(SDL_Renderer* renderer, int offsetX, int offsetY, int size, 
 void Game::addRandomPickup(SDL_Renderer* renderer, Vector2D pos) {
     //Pick the index of a pickup to add at random.  Note if it's a value above 3 then it won't add anything.
     int index = rand() % (3 + 7);
+
     switch (index) {
     case 0:
         listPickups.push_back(std::make_shared<Health>(renderer, pos));

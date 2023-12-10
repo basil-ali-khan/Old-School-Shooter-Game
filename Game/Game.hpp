@@ -40,10 +40,9 @@ private:
 
 
 public:
-	
 	Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int windowHeight);
 	~Game();
-	std::tuple<float, float, char> raycast(Vector2D posStart, Vector2D normal, bool findWallFPlayerT);
+	std::pair<float, float> raycast(Vector2D posStart, Vector2D normal, bool findWallFPlayerT);
 
 
 private:
@@ -54,7 +53,6 @@ private:
 
 	void drawOverlayInstructions(SDL_Renderer* renderer);
 	void drawOverlayPlaying(SDL_Renderer* renderer);
-	void drawOverlayLevelIncrement(SDL_Renderer* renderer);
 	void drawOverlayVictory(SDL_Renderer* renderer);
 	void drawOverlayDefeat(SDL_Renderer* renderer);
 
@@ -67,12 +65,12 @@ private:
 
 
 
-	// static const int worldWidth = 240, worldHeight = 135;
 	static const int worldWidth = 1920, worldHeight = 1080;
 	SDL_Texture* textureScreen = nullptr,
 		* textureHeart = nullptr, * textureAmmo = nullptr, * textureCoin = nullptr,
 		* textureCrosshair = nullptr,
-		* textureFont = nullptr;
+		* textureFont = nullptr,
+		* texturePlayButton = nullptr; // for play button
 
 	std::shared_ptr<Sprite> spriteFlag;
 
@@ -84,7 +82,6 @@ private:
 
 
 	static const float fovRad;
-	int levelIncrementOverlayTimer = 0;
 
 
 	std::unique_ptr<UnitPlayer> unitPlayer = nullptr;
