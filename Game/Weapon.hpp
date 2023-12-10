@@ -22,7 +22,7 @@
 class Weapon
 {
 public:
-	Weapon(int setAmmo, int roundsPerSecond);
+	Weapon(int setAmmo, int roundsPerSecond, int setDamage, float setProjectileSpeed, std::string setFilenameProjectile);
 	void update(float dT);
 	void shootProjectile(SDL_Renderer* renderer, Vector2D start, Vector2D directionNormal, 
 		std::vector<std::shared_ptr<Projectile>>& listProjectiles, bool setShotFromPlayer, 
@@ -42,6 +42,9 @@ private:
 
 	int roundsPerSecond;
 
+	int damage;
+	float projectileSpeed;
+	std::string filenameProjectile;
 	int ammo;
 	int ammoMax = 30;
 };

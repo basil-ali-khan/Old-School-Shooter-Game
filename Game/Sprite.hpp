@@ -35,9 +35,11 @@ public:
 protected:
 	Vector2D pos;
 	bool drawRed = false;
+    void setTexture(std::string filenameForTexture);
 
 
 private:
 	SDL_Texture* texture = nullptr;
+    SDL_Renderer* renderer = nullptr;
 	float overlapRadius, drawScale;
 };

@@ -1,105 +1,45 @@
 #include "UnitEnemy.hpp"
 #include "Game.hpp"
-#include "E1.hpp"
-#include "E2.hpp"
-#include "E3.hpp"
-#include "E4.hpp"
-#include "E5.hpp"
+#include <iostream>
 
 
-
-const std::vector<UnitEnemy::TemplateData> UnitEnemy::listTemplateData = {
-	{"E3.bmp", 1, Weapon(-1, 1), false },
-	{"E2.bmp", 3, Weapon(15, 4), true },
-	{"Alien Large.bmp", 6, Weapon(30, 8), true }
-};
-
+// const std::vector<UnitEnemy::TemplateData> UnitEnemy::listTemplateData = {
+// 	{"EnemyMinor1.bmp", 2, Weapon(-1, 1), false },
+// 	{"EnemyMinor2.bmp", 4, Weapon(-1, 4), true },
+// 	{"EnemyHaunterAwake.bmp", 6, Weapon(-1, 8), true }
+// };
 
 
-
-// UnitEnemy::UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, TemplateData unitEnemyTemplateData, float setSpeed) :
-// 	Unit(renderer, setPos,
-// 		unitEnemyTemplateData.filenameForTexture,
-// 		unitEnemyTemplateData.healthMax,
-// 		unitEnemyTemplateData.weapon),
-// 	justHurtTimer(0.25f), playerBecameVisibleTimer(2.0f),
-// 	hasChanceToDropPickup(unitEnemyTemplateData.hasChanceToDropPickup),
-// 	speed(setSpeed) {
-
-// }
-
-// UnitEnemy::UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, TemplateData unitEnemyTemplateData) :
-// 	Unit(renderer, setPos,
-// 		unitEnemyTemplateData.filenameForTexture,
-// 		unitEnemyTemplateData.healthMax,
-// 		unitEnemyTemplateData.weapon),
-// 	justHurtTimer(0.25f), playerBecameVisibleTimer(2.0f),
-// 	hasChanceToDropPickup(unitEnemyTemplateData.hasChanceToDropPickup),
-// 	speed(setSpeed) {
-
-// }
-UnitEnemy::UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, TemplateData unitEnemyTemplateData) :
-	Unit(renderer, setPos, unitEnemyTemplateData.filenameForTexture, unitEnemyTemplateData.healthMax),
+UnitEnemy::UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, int setHealthMax, float setSpeed, bool setHasChanceToDropPickup, Weapon setWeapon) :
+	Unit(renderer, setPos, filenameForTexture, setHealthMax, setWeapon),
 	justHurtTimer(0.25f), playerBecameVisibleTimer(2.0f),
-	hasChanceToDropPickup(unitEnemyTemplateData.hasChanceToDropPickup)
+	hasChanceToDropPickup(setHasChanceToDropPickup), speed(setSpeed)
 	{
 
 }
 
 
-
 // void UnitEnemy::addUnitEnemyToListUsingTemplate(SDL_Renderer* renderer, Vector2D setPos, int templateID,
-// 	std::vector<std::shared_ptr<UnitEnemy>>& listUnitEnemies) {
-// 	int eNumber = rand() % 2;
-// 	if (templateID > -1 && templateID < listTemplateData.size()) {
-// 		if (eNumber == 0) {
-// 		templateID = 0;
-// 		UnitEnemy E1(renderer, setPos, listTemplateData[0]);
-// 		listUnitEnemies.push_back(std::make_shared<UnitEnemy>(E1));
+//     std::vector<std::shared_ptr<UnitEnemy>>& listUnitEnemies) {
+    
+//     if (templateID > -1 && templateID < listTemplateData.size()) {
+// 		if (templateID == 0) {
+// 			listUnitEnemies.push_back(std::make_shared<E1>(renderer, setPos));
 // 		}
-// 		else if (eNumber == 1) {
-// 		templateID = 1;
-// 		UnitEnemy E2(renderer, setPos, listTemplateData[1]);
-// 		listUnitEnemies.push_back(std::make_shared<UnitEnemy>(E2));
+// 		else if (templateID == 1) {
+// 			listUnitEnemies.push_back(std::make_shared<E2>(renderer, setPos));
 // 		}
-// 		// else if (eNumber == 2) {
-// 		// templateID = 2;
-// 		// UnitEnemy E3(renderer, setPos, listTemplateData[2]);
-// 		// listUnitEnemies.push_back(std::make_shared<UnitEnemy>(E3));
-		
-// 		// }
-// 	}
+// 		else if (templateID == 2) {
+// 			listUnitEnemies.push_back(std::make_shared<E3>(renderer, setPos));
+// 		}
+//     }
 // }
-void UnitEnemy::addUnitEnemyToListUsingTemplate(SDL_Renderer* renderer, Vector2D setPos, int templateID,
-    std::vector<std::shared_ptr<UnitEnemy>>& listUnitEnemies) {
-    int eNumber = rand() % 1;
-    if (templateID > -1 && templateID < listTemplateData.size()) {
-        if (eNumber == 0) {
-            listUnitEnemies.push_back(std::make_shared<E1>(renderer, setPos));
-        } else if (eNumber == 1) {
-            listUnitEnemies.push_back(std::make_shared<E2>(renderer, setPos));
-        }
-        // Add similar conditions for other enemy types (E3, E4, E5) if needed
-		else if (eNumber == 2) {
-			listUnitEnemies.push_back(std::make_shared<E3>(renderer, setPos));
-		}
-		else if (eNumber == 3) {
-			listUnitEnemies.push_back(std::make_shared<E4>(renderer, setPos));
-		}
-		else if (eNumber == 4) {
-			listUnitEnemies.push_back(std::make_shared<E5>(renderer, setPos));
-		}
-    }
-}
-
-
 
 
 void UnitEnemy::update(float dT, SDL_Renderer* renderer, Game& game, std::unique_ptr<UnitPlayer>& unitPlayer, 
 	std::vector<std::shared_ptr<Projectile>>& listProjectiles) {
 
 	Unit::update(dT);
-
 
 	justHurtTimer.countDown(dT);
 	drawRed = (justHurtTimer.timeSIsZero() == false);
@@ -122,11 +62,11 @@ void UnitEnemy::update(float dT, SDL_Renderer* renderer, Game& game, std::unique
 
 		float angleSoundDeg = MathAddon::angleRadToDeg(directionNormal.angleBetween(Vector2D(unitPlayer->getAngle())));
 
-		weapon->shootProjectile(renderer, pos, directionNormal, listProjectiles, false, angleSoundDeg, directionPlayer.magnitude());
+		weapon.shootProjectile(renderer, pos, directionNormal, listProjectiles, false, angleSoundDeg, directionPlayer.magnitude());
 	}
 
 	// Check if player is in sight
-    if (std::get<0>(game.raycast(getPos(), (unitPlayer->getPos() - getPos()).normalize(), true)) > 0) {
+    if (std::get<0>(game.raycast(getPos(), (unitPlayer->getPos() - getPos()).normalize(), true)) > 1.75) {
         // Move towards player
         Vector2D directionToPlayer = (unitPlayer->getPos() - getPos()).normalize();
         Vector2D newPos = getPos() + directionToPlayer * speed * dT;
@@ -162,5 +102,10 @@ void UnitEnemy::removeHealth(int damage) {
 
 
 bool UnitEnemy::getHasChanceToDropPickup() {
+	std::cout << "hasChanceToDropPickup: " << hasChanceToDropPickup << std::endl;
 	return hasChanceToDropPickup;
+}
+
+bool UnitEnemy::getIsTank() {
+	return false;
 }

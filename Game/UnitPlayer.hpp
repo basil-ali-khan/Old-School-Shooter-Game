@@ -37,9 +37,6 @@ private:
 	float angle;
 	const float speedMove, speedTurn;
 
-	Weapon* playerWeapon;
-
-
 	int countCoins = 0;
 
 	int countHealthMaxUpgrades = 0, countAmmoMaxUpgrades = 0, countWeaponSpeedUpgrades = 0;

@@ -4,9 +4,7 @@
 
 
 
-Sprite::Sprite(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, float setOverlapRadius, float setDrawScale) :
-	pos(setPos), texture(TextureLoader::loadTexture(renderer, filenameForTexture)),
-	overlapRadius(setOverlapRadius), drawScale(setDrawScale) {
+Sprite::Sprite(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, float setOverlapRadius, float setDrawScale) : pos(setPos), texture(TextureLoader::loadTexture(renderer, filenameForTexture)), overlapRadius(setOverlapRadius), drawScale(setDrawScale), renderer(renderer) {
 
 }
 
@@ -107,4 +105,8 @@ Vector2D Sprite::getPos() {
 
 void Sprite::setPos(Vector2D setPos) {
     pos = setPos;
+}
+
+void Sprite::setTexture(std::string filenameForTexture) {
+    texture = TextureLoader::loadTexture(renderer, filenameForTexture);
 }

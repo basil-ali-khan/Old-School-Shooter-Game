@@ -7,8 +7,8 @@ Mix_Chunk* Weapon::mix_ChunkWeaponShoot = nullptr;
 
 
 
-Weapon::Weapon(int setAmmo, int setRoundsPerSecond) : ammo(setAmmo), 
-roundsPerSecond(setRoundsPerSecond), cooldownTimer(setRoundsPerSecond > 0 ? (1.0f / setRoundsPerSecond) : (1.0f / 2)) {
+Weapon::Weapon(int setAmmo, int setRoundsPerSecond, int setDamage, float setProjectileSpeed, std::string setFilenameProjectile) : ammo(setAmmo), 
+roundsPerSecond(setRoundsPerSecond), cooldownTimer(setRoundsPerSecond > 0 ? (setRoundsPerSecond == 10 ? (1.0f/0.333f) : (1.0f / setRoundsPerSecond)) : (1.0f / 2)), damage(setDamage), projectileSpeed(setProjectileSpeed), filenameProjectile(setFilenameProjectile) {
 	if (soundLoaded == false) {
 		// mix_ChunkWeaponShoot = SoundLoader::loadSound("Energy Orb.ogg");
 		// soundLoaded = (mix_ChunkWeaponShoot != nullptr);
@@ -16,12 +16,10 @@ roundsPerSecond(setRoundsPerSecond), cooldownTimer(setRoundsPerSecond > 0 ? (1.0
 }
 
 
-
 void Weapon::update(float dT) {
 	//Update weapon cooldown.
 	cooldownTimer.countDown(dT * (ammo == 0 ? 0.25f : 1.0f));
 }
-
 
 
 void Weapon::shootProjectile(SDL_Renderer* renderer, Vector2D start, Vector2D directionNormal, 
@@ -31,7 +29,7 @@ void Weapon::shootProjectile(SDL_Renderer* renderer, Vector2D start, Vector2D di
 	if (cooldownTimer.timeSIsZero()) {
 		//The projectile will move from the start position in the direction of directionNormal.
 		//Add the projectile to the list.
-		listProjectiles.push_back(std::make_unique<Projectile>(renderer, start, directionNormal, setShotFromPlayer));
+		listProjectiles.push_back(std::make_unique<Projectile>(renderer, start, directionNormal, setShotFromPlayer, projectileSpeed, damage, filenameProjectile));
 
 		//Play sound.
 		// if (mix_ChunkWeaponShoot != nullptr) {
@@ -53,6 +51,7 @@ void Weapon::shootProjectile(SDL_Renderer* renderer, Vector2D start, Vector2D di
 		if (ammo > 0)
 			ammo--;
 	}
+
 }
 
 

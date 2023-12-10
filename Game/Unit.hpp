@@ -19,7 +19,7 @@
 class Unit : public Sprite
 {
 public:
-	Unit(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, int setHealthMax);
+	Unit(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, int setHealthMax, Weapon setWeapon);
 	void update(float dT);
 	void draw(SDL_Renderer* renderer);
 	bool isAlive();
@@ -30,5 +30,5 @@ protected:
 	int healthMax;
 	int healthCurrent = healthMax;
 
-	Weapon* weapon;
+	Weapon weapon;
 };

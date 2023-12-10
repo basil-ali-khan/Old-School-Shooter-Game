@@ -5,36 +5,30 @@
 class Game;
 
 
-
 class UnitEnemy : public Unit
 {
 protected:
-	struct TemplateData {
-		std::string filenameForTexture;
-		int healthMax;
-		Weapon weapon;
-		bool hasChanceToDropPickup;
-	};
+	
+	std::string filenameForTexture;
+	int healthMax;
 	float speed;
-	static const std::vector<TemplateData> listTemplateData;
-
-
-public:
-	// UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, TemplateData unitEnemyTemplateData, float setSpeed);
-	UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, TemplateData unitEnemyTemplateData);
-	static void addUnitEnemyToListUsingTemplate(SDL_Renderer* renderer, Vector2D setPos, int templateID,
-		std::vector<std::shared_ptr<UnitEnemy>>& listUnitEnemies);
-	void update(float dT, SDL_Renderer* renderer, Game& game, std::unique_ptr<UnitPlayer>& unitPlayer, 
-		std::vector<std::shared_ptr<Projectile>>& listProjectiles);
-	bool checkIfUnitPlayerVisible(Game& game, std::unique_ptr<UnitPlayer>& unitPlayer);
-	void removeHealth(int amount);
-	bool getHasChanceToDropPickup();
-
-
-private:
-	// float speed;
 	Timer justHurtTimer;
 	Timer playerBecameVisibleTimer;
 
+public:
+	UnitEnemy(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, int setHealthMax, float setSpeed, bool setHasChanceToDropPickup, Weapon setWeapon);
+	
+	virtual void update(float dT, SDL_Renderer* renderer, Game& game, std::unique_ptr<UnitPlayer>& unitPlayer, std::vector<std::shared_ptr<Projectile>>& listProjectiles);
+	
+	bool checkIfUnitPlayerVisible(Game& game, std::unique_ptr<UnitPlayer>& unitPlayer);
+	
+	void removeHealth(int amount);
+	
+	bool getHasChanceToDropPickup();
+
+	virtual bool getIsTank();
+
+private:
 	bool hasChanceToDropPickup;
+
 };

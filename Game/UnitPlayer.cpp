@@ -3,14 +3,13 @@
 
 
 UnitPlayer::UnitPlayer(SDL_Renderer* renderer, Vector2D setPos) :
-	Unit(renderer, setPos, "", 20), angle(0.0f), speedMove(7.0f), speedTurn(2.0f) {
-        Unit::weapon = new Weapon(0, 4);
+	Unit(renderer, setPos, "", 40, Weapon(0,8,1,20,"Orb Green.bmp")), angle(0.0f), speedMove(7.0f), speedTurn(2.0f)  {
 }
 
 
 
 void UnitPlayer::shootProjectile(SDL_Renderer* renderer, std::vector<std::shared_ptr<Projectile>>& listProjectiles) {
-    weapon->shootProjectile(renderer, pos, Vector2D(angle), listProjectiles, true);
+    weapon.shootProjectile(renderer, pos, Vector2D(angle), listProjectiles, true);
 }
 
 
@@ -124,17 +123,17 @@ int UnitPlayer::getCountCoins() {
 
 
 bool UnitPlayer::isAmmoFull() {
-    return weapon->isAmmoFull();
+    return weapon.isAmmoFull();
 }
 
 
 void UnitPlayer::addAmmo(int amount) {
-    weapon->addAmmo(amount);
+    weapon.addAmmo(amount);
 }
 
 
 std::string UnitPlayer::computeAmmoString() {
-    return weapon->computeAmmoString();
+    return weapon.computeAmmoString();
 }
 
 
@@ -155,7 +154,7 @@ bool UnitPlayer::buyUpgradeAmmoMax() {
     int cost = 10;
     if (countCoins >= cost) {
         countCoins -= cost;
-        weapon->upgradeAmmoMax();
+        weapon.upgradeAmmoMax();
         return true;
     }
 
@@ -167,7 +166,7 @@ bool UnitPlayer::buyUpgradeWeaponSpeed() {
     int cost = 10;
     if (countCoins >= cost) {
         countCoins -= cost;
-        weapon->upgradeWeaponSpeed();
+        weapon.upgradeWeaponSpeed();
         return true;
     }
 

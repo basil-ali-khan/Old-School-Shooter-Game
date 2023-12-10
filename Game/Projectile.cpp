@@ -4,9 +4,9 @@
 
 
 
-Projectile::Projectile(SDL_Renderer* renderer, Vector2D setPos, Vector2D setDirectionNormal, bool setShotFromPlayer) :
-    Sprite(renderer, setPos, (setShotFromPlayer ? "Orb Green.bmp" : "Orb Purple.bmp"), 0.125f / 2, 0.125f),
-    directionNormal(setDirectionNormal), shotFromPlayer(setShotFromPlayer) {
+Projectile::Projectile(SDL_Renderer* renderer, Vector2D setPos, Vector2D setDirectionNormal, bool setShotFromPlayer, int setSpeed, int setDamage, std::string filename) :
+    Sprite(renderer, setPos, filename, 0.125f / 2, 0.125f),
+    directionNormal(setDirectionNormal), shotFromPlayer(setShotFromPlayer), speed(setSpeed), damage(setDamage) {
 
 }
 

@@ -1,5 +1,6 @@
 #include "Game.hpp"
-
+#include "UnitEnemyMinor.hpp"
+#include <iostream>
 
 const float Game::fovRad = MathAddon::angleDegToRad(60.0f);
 
@@ -53,9 +54,8 @@ Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int wind
                 processEvents(running, renderer, window, windowWidth, windowHeight);
 
                 //Update.  Only do so if the game mode is playing.
-                if (gameModeCurrent == Mode::playing)
+                if (gameModeCurrent == Mode::playing) 
                     update(timeDeltaFloat, renderer);
-
                 //Draw.
                 std::string framerate = (timeDeltaFloat > 0.0f ? std::to_string((int)round(1.0f / timeDeltaFloat)) : "Inf");
                 draw(renderer, framerate);
@@ -149,6 +149,7 @@ void Game::processEvents(bool& running, SDL_Renderer* renderer, SDL_Window* wind
 
 
 void Game::update(float dT, SDL_Renderer* renderer) {
+    
     //Update.
     if (unitPlayer != nullptr) {
         unitPlayer->update(dT);
@@ -167,18 +168,24 @@ void Game::update(float dT, SDL_Renderer* renderer) {
                 if (unitEnemySelected->getHasChanceToDropPickup())
                     addRandomPickup(renderer, unitEnemySelected->getPos());
 
+                // if EnemyTank, spawn 3 EnemyMinor units
+                if (unitEnemySelected->getIsTank()) {
+                    Vector2D pos = unitEnemySelected->getPos();
+                    listUnitEnemies.push_back(std::make_shared<UnitEnemyMinor>(renderer, Vector2D(pos.x + 0.5f, pos.y + 0.5f), 2));
+                    listUnitEnemies.push_back(std::make_shared<UnitEnemyMinor>(renderer, Vector2D(pos.x + 0.5f, pos.y - 0.5f), 2));
+                    listUnitEnemies.push_back(std::make_shared<UnitEnemyMinor>(renderer, Vector2D(pos.x - 0.5f, pos.y + 0.5f), 2));
+                }
                 listUnitEnemies.erase(listUnitEnemies.begin() + count);
                 count--;
+                Level::incrementKillCount();
             }
         }
     }
 
-    // if all enemies dead, increment difficulty and spawn new enemies
-    if (listUnitEnemies.size() == 2) {
-        Level::incrementDifficulty();
-        Vector2D posStart, posFinish;
-        Level::setupAllEnemiesAndPickups(renderer, posStart, posFinish, listUnitEnemies, listPickups);
-        levelIncrementOverlayTimer = 300;
+    // if killCount at area threshold, increment area
+    if (Level::killCount == Level::areaKillThreshold[Level::area-1]) {
+        Level::incrementArea();
+        levelIncrementOverlayTimer = 180;
     }
 
     //Update the pickups.
@@ -330,7 +337,10 @@ void Game::drawOverlayLevelIncrement(SDL_Renderer* renderer) {
     SDL_Rect rectBackground{ 0,0, worldWidth, worldHeight / 5 };
     SDL_RenderFillRect(renderer, &rectBackground);
 
-    drawText(renderer, 72, 8, 1, "Level Incremented");
+    if (Level::area <= 4)
+        drawText(renderer, 625, 50, 8, "Level Incremented");
+    else 
+        drawText(renderer, 625, 50, 8, "Exit Revealed");
 }
 
 
@@ -460,16 +470,16 @@ std::tuple<float,float, char> Game::raycast(Vector2D posStart, Vector2D normal, 
                 else if (Level::levelData[indexCheck] == Level::symbolKWall)
                     //A wall was found so output it's distance and fColor.
                     return std::tuple<float, float, char>(distance, fColor, 'K');
-                else if (Level::levelData[indexCheck] == Level::symbolDoorOne and Level::difficulty == 1)
+                else if (Level::levelData[indexCheck] == Level::symbolDoorOne and Level::area == 1)
                     //A wall was found so output it's distance and fColor.
                     return std::tuple<float, float, char>(distance, fColor, 'L');
-                else if (Level::levelData[indexCheck] == Level::symbolDoorTwo and Level::difficulty == 2)
+                else if (Level::levelData[indexCheck] == Level::symbolDoorTwo and Level::area == 2)
                     //A wall was found so output it's distance and fColor.
                     return std::tuple<float, float, char>(distance, fColor, 'M');
-                else if (Level::levelData[indexCheck] == Level::symbolDoorThree and Level::difficulty == 3)
+                else if (Level::levelData[indexCheck] == Level::symbolDoorThree and Level::area == 3)
                     //A wall was found so output it's distance and fColor.
                     return std::tuple<float, float, char>(distance, fColor, 'N');
-                else if (Level::levelData[indexCheck] == Level::symbolDoorFour and Level::difficulty == 4)
+                else if (Level::levelData[indexCheck] == Level::symbolDoorFour and Level::area == 4)
                     //A wall was found so output it's distance and fColor.
                     return std::tuple<float, float, char>(distance, fColor, 'O');
                 else
@@ -478,7 +488,7 @@ std::tuple<float,float, char> Game::raycast(Vector2D posStart, Vector2D normal, 
                         listVisibleCells[indexCheck] = true;
             }
             else {
-                if (Level::levelData[indexCheck] == Level::symbolXWall or Level::levelData[indexCheck] == Level::symbolYWall or Level::levelData[indexCheck] == Level::symbolZWall or Level::levelData[indexCheck] == Level::symbolJWall or Level::levelData[indexCheck] == Level::symbolKWall or (Level::difficulty == 1 and Level::levelData[indexCheck] == Level::symbolDoorOne) or (Level::difficulty == 2 and Level::levelData[indexCheck] == Level::symbolDoorTwo) or (Level::difficulty == 3 and Level::levelData[indexCheck] == Level::symbolDoorThree) or (Level::difficulty == 4 and Level::levelData[indexCheck] == Level::symbolDoorFour))
+                if (Level::levelData[indexCheck] == Level::symbolXWall or Level::levelData[indexCheck] == Level::symbolYWall or Level::levelData[indexCheck] == Level::symbolZWall or Level::levelData[indexCheck] == Level::symbolJWall or Level::levelData[indexCheck] == Level::symbolKWall or (Level::area == 1 and Level::levelData[indexCheck] == Level::symbolDoorOne) or (Level::area == 2 and Level::levelData[indexCheck] == Level::symbolDoorTwo) or (Level::area == 3 and Level::levelData[indexCheck] == Level::symbolDoorThree) or (Level::area == 4 and Level::levelData[indexCheck] == Level::symbolDoorFour))
                     //A wall was found before the player so stop checking.
                     checking = false;
                 else if (unitPlayer != nullptr && iPosCheckX == (int)unitPlayer->getPos().x && 
@@ -521,20 +531,12 @@ void Game::drawWalls(SDL_Renderer* renderer) {
                 if (wallType == 'X')
                     SDL_SetRenderDrawColor(renderer, (int)round(50 * fColor), (int)round(50 * fColor), (int)round(50 * fColor), 255);
                 else if (wallType == 'Y')
-                    SDL_SetRenderDrawColor(renderer, (int)round(75 * fColor), (int)round(0 * fColor), (int)round(75 * fColor), 255);
-                else if (wallType == 'Z')
                     SDL_SetRenderDrawColor(renderer, (int)round(0 * fColor), (int)round(75 * fColor), (int)round(75 * fColor), 255);
+                else if (wallType == 'Z')
+                    SDL_SetRenderDrawColor(renderer, (int)round(85 * fColor), (int)round(30 * fColor), (int)round(30 * fColor), 255);
                 else if (wallType == 'J')
                     SDL_SetRenderDrawColor(renderer, (int)round(75 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
-                else if (wallType == 'K')
-                    SDL_SetRenderDrawColor(renderer, (int)round(75 * fColor), (int)round(0 * fColor), (int)round(0 * fColor), 255);
-                else if (wallType == 'L')
-                    SDL_SetRenderDrawColor(renderer, (int)round(150 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
-                else if (wallType == 'M')
-                    SDL_SetRenderDrawColor(renderer, (int)round(150 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
-                else if (wallType == 'N')
-                    SDL_SetRenderDrawColor(renderer, (int)round(150 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
-                else if (wallType == 'O')
+                else if (wallType == 'L' or wallType == 'M' or wallType == 'N' or wallType == 'O' or wallType == 'K')
                     SDL_SetRenderDrawColor(renderer, (int)round(150 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
 
                 //Determine the height of the vertical line to be drawn.
@@ -635,7 +637,6 @@ void Game::drawText(SDL_Renderer* renderer, int offsetX, int offsetY, int size, 
 void Game::addRandomPickup(SDL_Renderer* renderer, Vector2D pos) {
     //Pick the index of a pickup to add at random.  Note if it's a value above 3 then it won't add anything.
     int index = rand() % (3 + 7);
-
     switch (index) {
     case 0:
         listPickups.push_back(std::make_shared<Health>(renderer, pos));

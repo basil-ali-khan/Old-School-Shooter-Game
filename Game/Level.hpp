@@ -35,11 +35,13 @@ public:
 	static void setupAllEnemiesAndPickups(SDL_Renderer* renderer, Vector2D& posStart, Vector2D& posFinish, 
 		std::vector<std::shared_ptr<UnitEnemy>>& listUnitEnemies, std::vector<std::shared_ptr<Pickup>>& listPickups);
 
-	static void incrementDifficulty();
-
+	static void incrementArea();
+	static void incrementKillCount();
 
 	static const char* levelData;
-	static int difficulty;
+	static int area;
+	static int killCount;
+	static int areaKillThreshold[5];
 
 	static const int levelWidth;
 	static const size_t levelSize;
