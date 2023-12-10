@@ -1,3 +1,3 @@
-#include "WeaponMedium.hpp"
+// #include "WeaponMedium.hpp"
 
-WeaponMedium::WeaponMedium() : Weapon(0, 10) {}
+// WeaponMedium::WeaponMedium() : Weapon(0, 10) {}

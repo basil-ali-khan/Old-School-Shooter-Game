@@ -1,3 +1,3 @@
-#include "WeaponRapidFire.hpp"
+// #include "WeaponRapidFire.hpp"
 
-WeaponRapidFire::WeaponRapidFire() : Weapon(0, 20) {}
+// WeaponRapidFire::WeaponRapidFire() : Weapon(0, 20) {}

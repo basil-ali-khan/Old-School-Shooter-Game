@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Weapon.hpp"
+// #include "Weapon.hpp"
 
-class WeaponSlow : public Weapon {
-public:
-    WeaponSlow();
-    WeaponSlow(int setAmmo, int roundsPerSecond);    
-};
+// class WeaponSlow : public Weapon {
+// public:
+//     WeaponSlow();
+//     WeaponSlow(int setAmmo, int roundsPerSecond);    
+// };

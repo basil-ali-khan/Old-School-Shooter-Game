@@ -2,8 +2,8 @@
 #include <iostream>
 
 
-Unit::Unit(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, int setHealthMax) :
-	Sprite(renderer, setPos, filenameForTexture, 0.5f/2), healthMax(setHealthMax) {
+Unit::Unit(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTexture, int setHealthMax, Weapon setWeapon) :
+	Sprite(renderer, setPos, filenameForTexture, 0.5f/2), healthMax(setHealthMax), weapon(setWeapon) {
 
 }
 
@@ -11,7 +11,7 @@ Unit::Unit(SDL_Renderer* renderer, Vector2D setPos, std::string filenameForTextu
 
 void Unit::update(float dT) {
     //Update the weapon.
-    weapon->update(dT);
+    weapon.update(dT);
 }
 
 

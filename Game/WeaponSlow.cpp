@@ -1,3 +1,3 @@
-#include "WeaponSlow.hpp"
+// #include "WeaponSlow.hpp"
 
-WeaponSlow::WeaponSlow() : Weapon(0, 5) {}
+// WeaponSlow::WeaponSlow() : Weapon(0, 5) {}
