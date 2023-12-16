@@ -8,6 +8,7 @@
 // #include "SDL2_mixer/SDL_mixer.h"
 #include "Sprite.hpp"
 #include "TextureLoader.hpp"
+#include "SoundLoader.hpp"
 #include "UnitEnemy.hpp"
 #include "Projectile.hpp"
 #include "Level.hpp"
@@ -100,4 +101,6 @@ private:
 	bool mouseXLastSet = false;
 
 	int moveToNextLevelMessageTimer = 0;
+	
+	static Mix_Music* backgroundMusic;
 };

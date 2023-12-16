@@ -110,3 +110,11 @@ void Sprite::setPos(Vector2D setPos) {
 void Sprite::setTexture(std::string filenameForTexture) {
     texture = TextureLoader::loadTexture(renderer, filenameForTexture);
 }
+
+void Sprite::setVisible(bool setVisible) {
+    visible = setVisible;
+}
+
+bool Sprite::isVisible() {
+    return visible;
+}

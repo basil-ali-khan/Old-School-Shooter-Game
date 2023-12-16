@@ -20,9 +20,12 @@ class SoundLoader
 {
 public:
 	static Mix_Chunk* loadSound(std::string filename);
+    static Mix_Music* loadMusic(std::string filename);
 	static void deallocateSounds();
+    static void deallocateMusic();
 
 
 private:
 	static std::unordered_map<std::string, Mix_Chunk*> umapSoundsLoaded;
+    static std::unordered_map<std::string, Mix_Music*> umapMusicLoaded;
 };

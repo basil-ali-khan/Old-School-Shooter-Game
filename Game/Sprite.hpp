@@ -30,6 +30,8 @@ public:
 	bool checkOverlap(Sprite* other);
 	Vector2D getPos();
 	void setPos(Vector2D setPos);
+    void setVisible(bool setVisable);
+    bool isVisible();
 
 
 protected:
@@ -42,4 +44,6 @@ private:
 	SDL_Texture* texture = nullptr;
     SDL_Renderer* renderer = nullptr;
 	float overlapRadius, drawScale;
+
+    bool visible = false;
 };

@@ -8,9 +8,9 @@
 const char* Level::levelData{
     "XYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXYXY"
     "XJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJY"
-    "YJ        0         A             0 J   K11    1  JX"
-    "XJ 2  3                 HHH     0HHHJF3 K111 2   1JY"
-    "YJ      0   0       A             0 J   K11    1  JX"
+    "YJ        0         A             0 J   P11    1  JX"
+    "XJ 2  3                 HHH     0HHHJF  P111 2   1JY"
+    "YJ      0   0       A             0 J   P11    1  JX"
     "XJ    2    JJJJJJJJJJJJJ   JJJJJJJJJJJJJJJJJ 1    JY"
     "YJ 0    0  J  0      0                     J      JX"
     "XJ    0    J      0 JJ  JJ JJJ   JJJ J JJJ J      JY"
@@ -91,7 +91,7 @@ const size_t Level::levelSize = strlen(levelData);
 
 int Level::area = 1;
 int Level::killCount = 0;
-int Level::areaKillThreshold[5] = { 20, 80, 130, 172, 248};
+int Level::areaKillThreshold[5] = { 20, 80, 130, 172, 251};
 
 /*
 20 LVL 1
@@ -103,7 +103,7 @@ int Level::areaKillThreshold[5] = { 20, 80, 130, 172, 248};
 bool Level::isBlockAtPos(int x, int y) {
     int index = x + y * levelWidth;
     if (index > -1 && index < levelSize)
-        return (levelData[index] == symbolXWall or levelData[index] == symbolYWall or levelData[index] == symbolZWall or levelData[index] == symbolJWall or levelData[index] == symbolKWall or (area == 1 and levelData[index] == symbolDoorOne) or (area == 2 and levelData[index] == symbolDoorTwo) or (area == 3 and levelData[index] == symbolDoorThree) or (area == 4 and levelData[index] == symbolDoorFour));
+        return (levelData[index] == symbolXWall or levelData[index] == symbolYWall or levelData[index] == symbolZWall or levelData[index] == symbolJWall or levelData[index] == symbolKWall or (area == 1 and levelData[index] == symbolDoorOne) or (area == 2 and levelData[index] == symbolDoorTwo) or (area == 3 and levelData[index] == symbolDoorThree) or (area == 4 and levelData[index] == symbolDoorFour)) or (area == 5 and levelData[index] == symbolDoorFive);
 
     return false;
 }

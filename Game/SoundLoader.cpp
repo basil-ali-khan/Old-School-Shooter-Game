@@ -1,8 +1,8 @@
 #include "SoundLoader.hpp"
-
+#include <iostream>
 
 std::unordered_map<std::string, Mix_Chunk*> SoundLoader::umapSoundsLoaded;
-
+std::unordered_map<std::string, Mix_Music*> SoundLoader::umapMusicLoaded;
 
 
 
@@ -35,6 +35,29 @@ Mix_Chunk* SoundLoader::loadSound(std::string filename) {
 
 
 
+Mix_Music* SoundLoader::loadMusic(std::string filename) {
+    if (!filename.empty()) {
+        auto found = umapMusicLoaded.find(filename);
+        if (found != umapMusicLoaded.end()) {
+            // Music already loaded
+            return found->second;
+        } else {
+            // Load new music
+            std::string filepath = "Data/Sounds/" + filename;
+            Mix_Music* music = Mix_LoadMUS(filepath.c_str());
+            if (music != nullptr) {
+                umapMusicLoaded[filename] = music;
+                return music;
+            } else {
+                // Handle error: could not load music
+                std::cerr << "Could not load music: " << Mix_GetError() << std::endl;
+            }
+        }
+    }
+    return nullptr;
+}
+
+
 void SoundLoader::deallocateSounds() {
 	//Stop the sounds first
     Mix_HaltChannel(-1);
@@ -47,4 +70,14 @@ void SoundLoader::deallocateSounds() {
 
         umapSoundsLoaded.erase(it);
     }
+}
+
+
+void SoundLoader::deallocateMusic() {
+    for (auto& music : umapMusicLoaded) {
+        if (music.second != nullptr) {
+            Mix_FreeMusic(music.second);
+        }
+    }
+    umapMusicLoaded.clear();
 }

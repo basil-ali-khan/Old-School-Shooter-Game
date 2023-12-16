@@ -55,6 +55,7 @@ public:
 	static const char symbolDoorTwo = 'M';
 	static const char symbolDoorThree = 'N';
 	static const char symbolDoorFour = 'O';
+	static const char symbolDoorFive = 'P';
 
 	static const char symbolHealth = 'H';
 	static const char symbolCoin = 'C';

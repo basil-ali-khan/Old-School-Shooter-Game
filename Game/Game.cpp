@@ -3,6 +3,7 @@
 #include <iostream>
 
 const float Game::fovRad = MathAddon::angleDegToRad(60.0f);
+Mix_Music* Game::backgroundMusic = nullptr;
 
 Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int windowHeight) :
     gameModeCurrent(Mode::instructions) {
@@ -28,6 +29,17 @@ Game::Game(SDL_Window* window, SDL_Renderer* renderer, int windowWidth, int wind
         spriteFlag = std::make_shared<Sprite>(renderer, posFinish, "Flag.bmp");
 
         listVisibleCells.assign(Level::levelSize, false);
+
+        // Initialize SDL_mixer
+        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+            std::cerr << "SDL_mixer could not initialize. SDL_mixer Error: " << Mix_GetError() << std::endl;
+        }
+
+        // Load and play background music
+        backgroundMusic = SoundLoader::loadMusic("Background.ogg");
+        if (backgroundMusic != nullptr) {
+            Mix_PlayMusic(backgroundMusic, -1); // -1 means looping the music
+        }
 
 
         //Store the current times for the clock.
@@ -82,6 +94,15 @@ Game::~Game() {
         texturePlayButton = nullptr;
     }
 
+    // Stop and free the background music
+    if (backgroundMusic != nullptr) {
+        Mix_HaltMusic();
+        Mix_FreeMusic(backgroundMusic);
+        backgroundMusic = nullptr;
+    }
+
+    // Close the audio device
+    Mix_CloseAudio();  
 }
 
 
@@ -191,27 +212,51 @@ void Game::update(float dT, SDL_Renderer* renderer) {
                     listUnitEnemies.push_back(std::make_shared<UnitEnemyMinor>(renderer, Vector2D(pos.x + 0.5f, pos.y - 0.5f), 2));
                     listUnitEnemies.push_back(std::make_shared<UnitEnemyMinor>(renderer, Vector2D(pos.x - 0.5f, pos.y + 0.5f), 2));
                 }
+
+                // if EnemyTank, don't increment kill count
+                if (!unitEnemySelected->getIsTank()) {
+                    Level::incrementKillCount();
+                }
+
                 listUnitEnemies.erase(listUnitEnemies.begin() + count);
                 count--;
-                Level::incrementKillCount();
             }
         }
     }
 
-    // if killCount at area threshold, increment area
-    if (Level::killCount == Level::areaKillThreshold[Level::area-1]) {
-        Level::incrementArea();
-        levelIncrementOverlayTimer = 180;
-        moveToNextLevelMessageTimer = 480; // Set timer for 5 seconds (assuming 60 FPS)
+    // Ensure we're not already at the last level
+    if (Level::area < 5) {
+        // if killCount reaches or exceeds area threshold, increment area
+        if (Level::killCount >= Level::areaKillThreshold[Level::area-1]) {
+            Level::incrementArea();
+            levelIncrementOverlayTimer = 180;
+            moveToNextLevelMessageTimer = 480; // Set timer for 5 seconds (assuming 60 FPS)
+        }
+    }
+    
+    // we're at the last level
+    if (Level::area == 5) {
+        // if killCount reaches or exceeds area threshold, increment area
+        if (Level::killCount >= Level::areaKillThreshold[Level::area-1]) {
+            Level::incrementArea();
+        }
     }
 
     if (moveToNextLevelMessageTimer > 0) {
         moveToNextLevelMessageTimer--;
     }
 
-    if (spriteFlag != nullptr && spriteFlag->checkOverlap(unitPlayer.get())) {
+    // Check if the current level is the last and all enemies are defeated
+    if (Level::area == 5 && Level::killCount >= Level::areaKillThreshold[Level::area - 1]) {
+        // Display the flag if not already displayed
+        if (spriteFlag != nullptr && !spriteFlag->isVisible()) {
+            spriteFlag->setVisible(true);  // Assuming you have a method to make the flag visible
+        }
+    }
+
+    // Check for victory condition (player reaches the flag)
+    if (spriteFlag != nullptr && spriteFlag->checkOverlap(unitPlayer.get()) && spriteFlag->isVisible()) {
         gameModeCurrent = Mode::victory;
-        Level::incrementArea();
         moveToNextLevelMessageTimer = 0; // Reset message timer
     }
 
@@ -364,8 +409,21 @@ void Game::drawOverlayPlaying(SDL_Renderer* renderer) {
             message = "Move To The Next Level";
         }
         else {
-            int enemiesRemaining = Level::areaKillThreshold[Level::area-1] - Level::killCount;
-            message = "Enemies Remaining: " + std::to_string(enemiesRemaining);
+            // int enemiesRemaining = Level::areaKillThreshold[Level::area-1] - Level::killCount;
+            // message = "Enemies Remaining: " + std::to_string(enemiesRemaining);
+
+            // if playing then display enemies remaining else go the flag
+            if (Level::area < 5) {
+                int enemiesRemaining = Level::areaKillThreshold[Level::area-1] - Level::killCount;
+                message = "Enemies Remaining: " + std::to_string(enemiesRemaining);
+            }
+            else if (Level::area == 5 && Level::killCount < Level::areaKillThreshold[Level::area - 1]) {
+                int enemiesRemaining = Level::areaKillThreshold[Level::area-1] - Level::killCount;
+                message = "Enemies Remaining: " + std::to_string(enemiesRemaining);
+            }
+            else {
+                message = "Go To The Flag To Win";
+            }
         }
 
         drawText(renderer, 10, 10, 4, message);
@@ -523,6 +581,9 @@ std::tuple<float,float, char> Game::raycast(Vector2D posStart, Vector2D normal, 
                 else if (Level::levelData[indexCheck] == Level::symbolDoorFour and Level::area == 4)
                     //A wall was found so output it's distance and fColor.
                     return std::tuple<float, float, char>(distance, fColor, 'O');
+                else if (Level::levelData[indexCheck] == Level::symbolDoorFive and Level::area == 5)
+                    //A wall was found so output it's distance and fColor.
+                    return std::tuple<float, float, char>(distance, fColor, 'P');
                 else
                     //No wall was found so ensure that the cell on listVisibleCells is set to true.
                     if (listVisibleCells[indexCheck] == false)
@@ -579,6 +640,8 @@ void Game::drawWalls(SDL_Renderer* renderer) {
                     SDL_SetRenderDrawColor(renderer, (int)round(75 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
                 else if (wallType == 'L' or wallType == 'M' or wallType == 'N' or wallType == 'O' or wallType == 'K')
                     SDL_SetRenderDrawColor(renderer, (int)round(150 * fColor), (int)round(75 * fColor), (int)round(0 * fColor), 255);
+                else if (wallType == 'P')
+                    SDL_SetRenderDrawColor(renderer, (int)round(0 * fColor), (int)round(255 * fColor), (int)round(0 * fColor), 255);
 
                 //Determine the height of the vertical line to be drawn.
                 float heightDraw = 1.0f * (atan(0.5f / distance) / fovRad * worldWidth * 2);
