@@ -13,9 +13,11 @@ public:
 
 	float angle() { return atan2(y, x); }
 
+	float magnitudeSquared() { return x * x + y * y; }
 	float magnitude() { return sqrt(x * x + y * y); }
 	Vector2D normalize();
 	Vector2D getNegativeReciprocal() { return Vector2D(-y, x); }
+	float q_sqrt(float number);
 
 	float dot(const Vector2D& other) { return x * other.x + y * other.y; }
 	float cross(const Vector2D& other) { return x * other.y - y * other.x; }

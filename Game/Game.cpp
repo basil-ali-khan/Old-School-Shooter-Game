@@ -436,7 +436,7 @@ void Game::drawOverlayLevelIncrement(SDL_Renderer* renderer) {
     SDL_Rect rectBackground{ 0,0, worldWidth, worldHeight / 5 };
     SDL_RenderFillRect(renderer, &rectBackground);
 
-    if (Level::area <= 4)
+    if (Level::area <= 5)
         drawText(renderer, 625, 50, 8, "Level Incremented");
     else 
         drawText(renderer, 625, 50, 8, "Exit Revealed");
