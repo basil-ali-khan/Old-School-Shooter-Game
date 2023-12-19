@@ -10,26 +10,30 @@
 - **Memory:** 4 GB RAM
 - **Graphics:** DirectX 11 compatible GPU
 - **DirectX:** Version 11
-- **Storage:** 100 MB available space
+- **Storage:** 200 MB available space
 
 ### MacOS
 - **OS:** MacOS X 10.9 or later
 - **Processor:** Intel Core i3 or equivalent
 - **Memory:** 4 GB RAM
 - **Graphics:** SDL 2.0 compatible GPU
-- **Storage:** 100 MB available space
+- **Storage:** 200 MB available space
 
 ## Setup
 
 ### Windows
-1. Open the Game folder.
-2. Compile the code using `g++ *.cpp -IC:\mingw_dev_lib\include\SDL2 -LC:\mingw_dev_lib\lib -w -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -o a.exe`
-3. Run `.\a.exe` to start th game.
+1. Install GCC compiler using this [guide](https://code.visualstudio.com/docs/cpp/config-mingw).
+2. Setup SDL2.0 using this [guide](https://w3.cs.jmu.edu/bernstdh/web/common/help/cpp_mingw-sdl-setup.php).
+3. Open the Game folder.
+4. Compile the code using `g++ *.cpp -IC:\mingw_dev_lib\include\SDL2 -LC:\mingw_dev_lib\lib -w -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf -o a.exe`
+5. Run `.\a.exe` to start th game.
 
 ### MacOS
-1. Open the Game folder.
-2. Compile the code using `clang++ *.cpp -o final.out -I/Library/Frameworks/SDL2.framework/Headers -I/Library/Frameworks/SDL2_mixer.framework/Headers -I/Libaray/Frameworks/SDL2_image.framework/Headers -F/Library/Frameworks -framework SDL2 -framework SDL2_image -framework SDL2_mixer -rpath /Library/Frameworks -std=c++17`
-3. Run `./final.out` to start the game.
+1. Install command line tools using `xcode-select –-install`
+2. Setup SDL2.0 using this [guide](https://lazyfoo.net/tutorials/SDL/01_hello_SDL/mac/index.php).
+3. Open the Game folder.
+4. Compile the code using `clang++ *.cpp -o final.out -I/Library/Frameworks/SDL2.framework/Headers -I/Library/Frameworks/SDL2_mixer.framework/Headers -I/Libaray/Frameworks/SDL2_image.framework/Headers -F/Library/Frameworks -framework SDL2 -framework SDL2_image -framework SDL2_mixer -rpath /Library/Frameworks -std=c++17`
+5. Run `./final.out` to start the game.
 
 ## How to Play
 - Use **WASD** keys for movement.
