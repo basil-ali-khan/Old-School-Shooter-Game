@@ -49,7 +49,8 @@
 This game is licensed for personal use only. Redistribution or commercial use is prohibited without prior consent from the developers.
 
 ## Credits
-Developed by Muhammad Saad, Raahim Hashmi, Basil Ali Khan - Students of Habib University.
+Developed by Muhammad Saad, Raahim Hashmi, Basil Ali Khan - Students of Habib University for CS/CE 224/272 OOP & Design Methodologies.
+Referenced from [Funneractic](https://youtu.be/I0T1MkOoP4Y?si=RM6aRoyTodZuEf3-).
 
 ## Disclaimer
 "Aliens Onboard" is a work of fiction. Any resemblance to real persons, living or dead, or actual events is purely coincidental. All trademarks and copyrights are property of their respective owners.
